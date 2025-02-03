@@ -9,7 +9,7 @@ fi
 
 PROJECT_ID=$1
 IMAGE_VERSION=0.0.1
-GCR_IMAGE="gcr.io/$PROJECT_ID/airflow-github-etl:$IMAGE_VERSION"
+GCR_IMAGE="gcr.io/$PROJECT_ID/airflow-github-etl"
 
 # Ensure user is authenticated with GCP
 echo "Ensuring authentication with GCP..."
