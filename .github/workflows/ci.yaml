@@ -18,8 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run tests in container
-        with:
-          args: |
-            /bin/bash -c "
-            pylint dags plugins tests &&
-            pytest -s dags/ plugins/ tests/ --cov=./ --cov-report=xml"
+        run: |
+          /bin/bash -c "
+          pylint dags plugins tests &&
+          pytest -s dags/ plugins/ tests/ --cov=./ --cov-report=xml"
