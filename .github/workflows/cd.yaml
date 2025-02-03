@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - id: 'auth'
+      - id: auth
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.AIRR_LABS_GCP_SA_KEY }}'
@@ -17,8 +17,10 @@ jobs:
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
+        if: steps.auth.outcome == 'success'
 
       - name: Deploy to Cloud Composer
+        if: steps.auth.outcome == 'success'
         run: |
           # Get Composer's GCS bucket
           COMPOSER_BUCKET=$(gcloud composer environments describe ${{ secrets.AIRR_LABS_COMPOSER_ENV_NAME }} \

@@ -3,14 +3,13 @@ name: CI
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   test:
+
     runs-on: ubuntu-latest
     steps:
-      - id: 'auth'
+      - id: auth
         uses: 'google-github-actions/auth@v2'
         with:
           credentials_json: '${{ secrets.AIRR_LABS_GCP_SA_KEY }}'
@@ -19,6 +18,7 @@ jobs:
       
       - name: Run tests in container
         uses: docker://asia.gcr.io/personal-project-447516/airflow-github-etl:0.0.1
+        if: steps.auth.outcome == 'success'
         with:
           args: |
             /bin/bash -c "
