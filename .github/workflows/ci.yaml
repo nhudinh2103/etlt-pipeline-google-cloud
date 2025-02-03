@@ -22,3 +22,4 @@ jobs:
           /bin/bash -c "
           pylint dags plugins tests &&
           pytest -s dags/ plugins/ tests/ --cov=./ --cov-report=xml"
+# Trigger build
