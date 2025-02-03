@@ -6,6 +6,8 @@ on:
   pull_request:
     branches: [ main ]
 
+# Test trigger
+
 jobs:
   auth:
     runs-on: ubuntu-latest
