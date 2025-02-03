@@ -8,7 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     container:
-      image: asia.gcr.io/${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}/airflow-github-etl:0.0.1
+      image: asia.gcr.io/personal-project-447516/airflow-github-etl:0.0.1
       credentials:
         username: _json_key
         password: ${{ secrets.GCP_SA_KEY }}
@@ -30,9 +30,9 @@ jobs:
           --format="get(config.dagGcsPrefix)")
         
         # Sync DAGs
-        gsutil -m rsync -r dags/ $COMPOSER_BUCKET/dags
+        gsutil -m rsync -r dags/$COMPOSER_BUCKET/dags
         
         # Sync plugins
-        gsutil -m rsync -r plugins/ $COMPOSER_BUCKET/plugins
+        gsutil -m rsync -r plugins/$COMPOSER_BUCKET/plugins
         
         echo "Deployment completed successfully"
