@@ -6,7 +6,11 @@ on:
 
 jobs:
   deploy:
-    runs-on: asia.gcr.io/${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}/airflow-github-etl:0.0.1
+    runs-on: 
+      image: asia.gcr.io/${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}/airflow-github-etl:0.0.1
+      credentials:
+        username: _json_key
+        password: ${{ secrets.GCP_SA_KEY }}
     steps:
     - uses: actions/checkout@v2
 
@@ -14,7 +18,7 @@ jobs:
       uses: google-github-actions/setup-gcloud@v0
       with:
         project_id: ${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}
-        service_account_key: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
         export_default_credentials: true
 
     - name: Deploy to Cloud Composer
