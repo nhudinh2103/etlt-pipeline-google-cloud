@@ -14,12 +14,15 @@ jobs:
       credentials:
           username: _json_key
           password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
-
     steps:
+
       - uses: actions/checkout@v2
+      
       - name: Run tests in container
-        run: |
-          /bin/bash -c "
-          pylint dags plugins tests &&
-          pytest -s dags/ plugins/ tests/ --cov=./ --cov-report=xml"
-# Trigger build
+        uses: docker://asia.gcr.io/personal-project-447516/airflow-github-etl:0.0.1
+        with:
+          args: |
+            /bin/bash -c "
+            pylint dags plugins tests &&
+            pytest -s dags/ plugins/ tests/ --cov=./ --cov-report=xml"
+# Test trigger
