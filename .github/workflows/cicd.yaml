@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Run tests in container
         run: |
-          pytest -vv -s dags/ plugins/
+          pythom -m pytest dags/ plugins/
 
   deploy:
     needs: test
