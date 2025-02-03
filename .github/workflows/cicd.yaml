@@ -15,8 +15,8 @@ jobs:
           username: nhudinh2103
           password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
 
-    # steps:
-    #   - uses: actions/checkout@v2
+    steps:
+      - uses: actions/checkout@v2
     #   - name: Run tests in container
     #     run: |
     #       python -m pytest dags/ plugins/
