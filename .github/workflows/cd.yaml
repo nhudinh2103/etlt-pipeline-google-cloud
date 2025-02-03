@@ -6,11 +6,12 @@ on:
 
 jobs:
   deploy:
-    container:
-      image: asia.gcr.io/${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}/airflow-github-etl:0.0.1
-      credentials:
-        username: _json_key
-        password: ${{ secrets.GCP_SA_KEY }}
+    runs-on: ubuntu-latest
+      container:
+        image: asia.gcr.io/${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}/airflow-github-etl:0.0.1
+        credentials:
+          username: _json_key
+          password: ${{ secrets.GCP_SA_KEY }}
     steps:
     - uses: actions/checkout@v2
 
