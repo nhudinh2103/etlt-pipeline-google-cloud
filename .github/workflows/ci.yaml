@@ -8,7 +8,7 @@ on:
 
 jobs:
   test:
-    runs-on:
+    container:
       image: asia.gcr.io/${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}/airflow-github-etl:0.0.1
       credentials:
         username: _json_key
