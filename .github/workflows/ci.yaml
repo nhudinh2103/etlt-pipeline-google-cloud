@@ -3,25 +3,23 @@ name: CI
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
   test:
-
     runs-on: ubuntu-latest
+    container:
+      image: asia.gcr.io/personal-project-447516/airflow-github-etl:0.0.1
+      credentials:
+          username: _json_key
+          password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
+
     steps:
-      - id: auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          credentials_json: '${{ secrets.AIRR_LABS_GCP_SA_KEY }}'
-      
       - uses: actions/checkout@v2
-      
       - name: Run tests in container
-        uses: docker://asia.gcr.io/personal-project-447516/airflow-github-etl:0.0.1
-        if: steps.auth.outcome == 'success'
         with:
           args: |
             /bin/bash -c "
             pylint dags plugins tests &&
             pytest -s dags/ plugins/ tests/ --cov=./ --cov-report=xml"
-          fail_ci_if_error: true
