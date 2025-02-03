@@ -10,11 +10,11 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container:
-      image: asia.gcr.io/personal-project-447516/airflow-github-etl:0.0.1
+      image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
       credentials:
-          username: _json_key
-          password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
-          
+          username: nhudinh2103
+          password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
+
     steps:
       - uses: actions/checkout@v2
       - name: Run tests in container
