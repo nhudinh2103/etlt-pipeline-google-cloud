@@ -125,6 +125,10 @@ class GCS:
             json_input_content: JSON content to convert
             parquet_output_path (str): Path to save parquet file
         """
+        if self.log:
+            self.log.info(f"json_input_content = {json_input_content}") 
+            self.log.info(f"parquet_output_path = {parquet_output_path}") 
+            
         json_content = json.loads(json_input_content)
         df = pd.DataFrame(json_content)
         table = pa.Table.from_pandas(df)
