@@ -1,49 +1,112 @@
 from airflow.models import BaseOperator
-import pandas as pd
+from typing import List, Dict
+import json
+from datetime import datetime
+from plugins.gcs import GCS
 
 class GCSTransformOperator(BaseOperator):
+    """
+    Operator that transforms GitHub commits data and saves to staging area.
+    """
     def __init__(
         self,
-        task_id: str,
-        source_bucket: str,
-        source_path: str,
-        destination_bucket: str,
-        destination_path: str,
+        *,
+        src_path: str,
+        dest_path: str,
+        partition_date: datetime,
         **kwargs
-    ):
-        super().__init__(task_id=task_id, **kwargs)
-        self.source_bucket = source_bucket
-        self.source_path = source_path
-        self.destination_bucket = destination_bucket
-        self.destination_path = destination_path
+    ) -> None:
+        """
+        Initialize the operator.
+        
+        Args:
+            src_path: Source GCS path (gs://bucket/path)
+            dest_path: Destination GCS path for transformed data (gs://bucket/path)
+            partition_date: The partition date to process
+        """
+        super().__init__(**kwargs)
+        self.src_path = src_path
+        self.dest_path = dest_path
+        self.partition_date = partition_date
+
+    def transform_github_commits(self, commits_data: List[Dict]) -> List[Dict]:
+        """
+        Transform GitHub commits data by keeping only specific fields.
+        
+        Args:
+            commits_data: List of commit data dictionaries
+            
+        Returns:
+            List[Dict]: Transformed commit data with only required fields
+        """
+        transformed_data = []
+        for commit in commits_data:
+            transformed_commit = {
+                'committer_name': commit['commit']['committer']['name'],
+                'committer_date': commit['commit']['committer']['date'],
+                'committer_login': commit['committer'].get('login') if commit.get('committer') else None,
+                'committer_id': commit['committer'].get('id') if commit.get('committer') else None,
+                'committer_type': commit['committer'].get('type') if commit.get('committer') else None,
+            }
+            transformed_data.append(transformed_commit)
+        return transformed_data
 
     def execute(self, context):
-        # Read from bronze layer
-        source_path = f"gs://{self.source_bucket}/{self.source_path}"
-        self.log.info(f"Reading from {source_path}")
+        """
+        Execute the operator to transform GitHub commits data and save to staging.
+        """
+        self.log.info(f"Starting transformation for partition date: {self.partition_date.strftime('%Y-%m-%d')}")
+        self.log.info(f"Source path: {self.src_path}")
         
+        src_bucket, src_blob = self.src_path.replace("gs://", "").split("/", 1)
+        dest_bucket, dest_blob = self.dest_path.replace("gs://", "").split("/", 1)
         
-        # try:
-        #     df = pd.read_parquet(source_path)
-        # except Exception as e:
-        #     self.log.info(f"No data found at {source_path}. Error: {str(e)}")
-        #     return
-
-        # # Apply transformations
-        # df['author_name'] = df['author_name'].str.strip()
-        # df['author_email'] = df['author_email'].str.lower()
-        # df['commit_message'] = df['commit_message'].str.strip()
+        gcs = GCS(partition_date=self.partition_date, log=self.log)
         
-        # # Convert timestamp to UTC
-        # df['committed_at'] = pd.to_datetime(df['committed_at']).dt.tz_convert('UTC')
+        # Process files in partition
+        partition_path = self.partition_date.strftime("%Y/%m/%d")
+        full_src_prefix = f"{src_blob}/{partition_path}"
         
-        # # Save to staging layer
-        # destination_path = f"gs://{self.destination_bucket}/{self.destination_path}"
-        # self.log.info(f"Saving transformed data to {destination_path}")
+        blobs = gcs.gcs_hook.list(bucket_name=src_bucket, prefix=full_src_prefix)
+        processed_files = []
         
-        # df.to_parquet(
-        #     destination_path,
-        #     engine='pyarrow',
-        #     compression='snappy'
-        # )
-        # self.log.info(f"Successfully transformed and saved {len(df)} records")
+        for src_blob_path in blobs:
+            if not src_blob_path.endswith('.json'):
+                continue
+                
+            self.log.info(f"Processing file: gs://{src_bucket}/{src_blob_path}")
+            
+            # Download and transform
+            file_content = gcs.gcs_hook.download(
+                bucket_name=src_bucket,
+                object_name=src_blob_path,
+                encoding='utf-8'
+            )
+            
+            if not file_content:
+                continue
+            
+            # Transform the data
+            json_content = json.loads(file_content)
+            transformed_data = self.transform_github_commits(json_content)
+            
+            # Upload transformed data
+            dest_blob_path = f"{dest_blob}/{partition_path}/{src_blob_path.split('/')[-1]}"
+            
+            self.log.info(f"Saving transformed data to: gs://{dest_bucket}/{dest_blob_path}")
+            
+            gcs.gcs_hook.upload(
+                bucket_name=dest_bucket,
+                object_name=dest_blob_path,
+                data=json.dumps(transformed_data, indent=2),
+                mime_type='application/json'
+            )
+            
+            processed_files.append({
+                "source": f"gs://{src_bucket}/{src_blob_path}",
+                "destination": f"gs://{dest_bucket}/{dest_blob_path}"
+            })
+        
+        self.log.info(f"Successfully transformed {len(processed_files)} files for partition date: {self.partition_date.strftime('%Y-%m-%d')}")
+        for file_info in processed_files:
+            self.log.info(f"Transformed: {file_info['source']} -> {file_info['destination']}")

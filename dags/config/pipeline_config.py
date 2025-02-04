@@ -10,12 +10,15 @@ class PipelineConfig:
     # GCS Configuration
     GCS_BUCKET = "airr-labs-interview"
     BRONZE_PATH = "bronze/github_commits"
-    STAGING_PATH = "staging/github_commits"
+    SILVER_PATH = "silver/github_commits"
+    GOLD_PATH = "gold/github_commits"
     
     # BigQuery Configuration
     PROJECT_ID = "personal-project-447516"
     DATASET_ID = "github_data"
     TABLE_ID = "commits"
+    
+    GCS_AIRR_LAB_CONNECTION = 'gcs_airr_lab_interviews'
     
     # Batch Configuration
     API_BATCH_SIZE = 100

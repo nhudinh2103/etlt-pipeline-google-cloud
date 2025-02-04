@@ -38,10 +38,9 @@ class GitHubToGCSOperator(BaseOperator):
 
         # Save commits as JSON
         partition_date = execution_date.strftime('%Y-%m-%d')
-        blob_name = f"{self.bronze_path}/dt={partition_date}/commits.json"
         
         # Initialize GCS client
-        upload_to_gcs(gcs_bucket=self.gcs_bucket, blob_name=blob_name, contents=commits)
+        upload_to_gcs(gcs_bucket=self.gcs_bucket, prefix=self.bronze_path, partition_date=partition_date, blob_name="commits.json", contents=commits)
         
         self.log.info(f"Saved {len(commits)} commits to gs://{self.gcs_bucket}/{blob_name}")
 

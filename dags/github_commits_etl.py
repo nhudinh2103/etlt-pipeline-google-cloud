@@ -4,7 +4,9 @@ from airflow.utils.dates import days_ago
 from datetime import timedelta
 
 from plugins.operators.github_to_gcs import GitHubToGCSOperator
-from plugins.operators.duckdb_transform import DuckDBTransformOperator
+# from plugins.operators.duckdb_transform import DuckDBTransformOperator
+from plugins.operators.gcs_transform import GCSTransformOperator
+from plugins.operators.gcs_json_to_parquet import GCSJsonToParquetOperator
 from dags.config.pipeline_config import PipelineConfig
 
 from airflow.operators.empty import EmptyOperator
@@ -24,7 +26,7 @@ with DAG(
     'github_commits_etl',
     default_args=default_args,
     description='ETL pipeline for GitHub commits',
-    schedule_interval='0 0 * * *',  # Daily at midnight UTC
+    schedule_interval='0 8 * * *',  # Daily at midnight UTC
     start_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
     end_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
     catchup=True,
@@ -41,15 +43,28 @@ with DAG(
         batch_size=PipelineConfig.API_BATCH_SIZE,
     )
 
-    # Task 2: Transform data using DuckDB (Staging)
-    transform_staging = DuckDBTransformOperator(
-        task_id='transform_staging',
-        source_path=f"gs://{PipelineConfig.GCS_BUCKET}/{PipelineConfig.BRONZE_PATH}/dt={{{{ ds }}}}/commits.parquet",
-        destination_path=f"gs://{PipelineConfig.GCS_BUCKET}/{PipelineConfig.STAGING_PATH}/dt={{{{ ds }}}}/commits_transformed.parquet",
-        sql_path='dags/sql/transform_commits.sql'
+    # Task 2: Transform data (normalize json to keep only necessary fields)
+    transform_json_gcs_data = GCSTransformOperator(
+        src_path=PipelineConfig.BRONZE_PATH,
+        dest_path=PipelineConfig.SILVER_PATH,
+        partition_date={{ execution_date }}
     )
+    
+    # Task 3: Convert normalized json to parquet files
+    convert_parquet_gcs_data = GCSJsonToParquetOperator(
+        src_path=PipelineConfig.SILVER_PATH,
+        dest_path=PipelineConfig.GOLD_PATH,
+        partition_date={{ execution_date }}
+    )
+    
+    # transform_staging = DuckDBTransformOperator(
+    #     task_id='transform_staging',
+    #     source_path=f"gs://{PipelineConfig.GCS_BUCKET}/{PipelineConfig.BRONZE_PATH}/dt={{{{ ds }}}}/commits.parquet",
+    #     destination_path=f"gs://{PipelineConfig.GCS_BUCKET}/{PipelineConfig.STAGING_PATH}/dt={{{{ ds }}}}/commits_transformed.parquet",
+    #     sql_path='dags/sql/transform_commits.sql'
+    # )
 
-    # Task 3: Load data to warehouse
+    # Task 4: Load data to warehouse
     load_data_to_warehouse = EmptyOperator(task_id='load_data_to_warehouse')
     # load_data_to_warehouse = GCSToBigQueryOperator(
     #     task_id='load_data_to_warehouse',
@@ -80,4 +95,4 @@ with DAG(
     # )
 
     # Set task dependencies
-    extract_raw_data >> transform_staging >> load_data_to_warehouse
+    extract_raw_data >> transform_json_gcs_data >> convert_parquet_gcs_data >> load_data_to_warehouse
