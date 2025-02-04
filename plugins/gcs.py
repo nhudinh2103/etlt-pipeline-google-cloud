@@ -61,7 +61,7 @@ class GCS:
             dest_blob = f"{dest_prefix}/{partition_path}/{dest_file_name}"
             
             if self.log:
-                self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{full_dest_prefix}")
+                self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{dest_blob}")
             
             self.__download_json_upload_parquet(
                 src_gcs_bucket=src_gcs_bucket, 
