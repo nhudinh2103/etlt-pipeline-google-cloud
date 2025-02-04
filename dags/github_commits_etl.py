@@ -79,7 +79,7 @@ with DAG(
         source_format='PARQUET',
         write_disposition='WRITE_TRUNCATE',
         create_disposition='CREATE_IF_NEEDED',
-        autodetect=True,
+        autodetect=None,
         time_partitioning={
             'type': 'DAY',
             'field': 'partitioned_date',
