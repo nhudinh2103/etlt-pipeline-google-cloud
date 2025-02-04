@@ -11,7 +11,6 @@ from plugins.utils.time_utils import get_hive_partition_prefix_str
 
 import pyarrow as pa
 import pyarrow.parquet as pq
-import io
 
 
 
@@ -131,8 +130,9 @@ class GCS:
             self.log.info(f"json_input_path = {json_input_path}") 
             self.log.info(f"parquet_output_path = {parquet_output_path}") 
         
-        with io.open(json_input_path, 'r', encoding='utf-8') as input_file:            
-            json_content = json.loads(input_file)
+        with open(json_input_path, 'r', encoding='utf-8') as input_file:
+            file_content = input_file.read()
+            json_content = json.loads(file_content)
             df = pd.DataFrame(json_content)
             table = pa.Table.from_pandas(df)
             pq.write_table(table, parquet_output_path)
