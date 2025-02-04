@@ -17,7 +17,6 @@ class GCSTransformOperator(BaseOperator):
         *,
         src_path: str,
         dest_path: str,
-        partition_date: str,
         **kwargs
     ) -> None:
         """
