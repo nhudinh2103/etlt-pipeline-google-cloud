@@ -71,12 +71,10 @@ with DAG(
         gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
         bucket=PipelineConfig.GCS_BUCKET,
         source_objects=[
-            f"{PipelineConfig.GOLD_PATH}/dt={{{{ ds }}}}/commits.parquet"
+            f"{PipelineConfig.GOLD_PREFIX_PATH}/dt={{{{ ds }}}}/commits.parquet"
         ],
         destination_project_dataset_table=(
-            f"{PipelineConfig.PROJECT_ID}."
-            f"{PipelineConfig.DATASET_ID}."
-            f"{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
+            f"{PipelineConfig.PROJECT_ID}.{PipelineConfig.DATASET_ID}.{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
         ),
         source_format='PARQUET',
         write_disposition='WRITE_TRUNCATE',
