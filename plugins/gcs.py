@@ -57,7 +57,7 @@ class GCS:
                 continue
             
             dest_file_name = os.path.basename(os.path.splitext(src_blob)[0])  + '.parquet'
-            dest_blob = f"{dest_prefix}/{dest_file_name}"
+            dest_blob = f"{dest_prefix}/{partition_path}/{dest_file_name}"
             
             if self.log:
                 self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{dest_blob}")
