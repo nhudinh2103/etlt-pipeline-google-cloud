@@ -3,7 +3,7 @@ from typing import List
 import requests
 import json
 from datetime import datetime, timedelta
-from plugins.gcs import upload_to_gcs
+from plugins.gcs import GCS
 
 class GitHubToGCSOperator(BaseOperator):
     def __init__(
@@ -39,10 +39,16 @@ class GitHubToGCSOperator(BaseOperator):
         # Save commits as JSON
         partition_date = execution_date.strftime('%Y-%m-%d')
         
-        # Initialize GCS client
-        upload_to_gcs(gcs_bucket=self.gcs_bucket, prefix=self.bronze_path, partition_date=partition_date, blob_name="commits.json", contents=commits)
+        # Initialize GCS client and upload
+        gcs = GCS(partition_date=execution_date, log=self.log)
+        gcs_path = gcs.upload_to_gcs(
+            gcs_bucket=self.gcs_bucket, 
+            prefix=self.bronze_path, 
+            blob_name="commits.json", 
+            contents=commits
+        )
         
-        self.log.info(f"Saved {len(commits)} commits to gs://{self.gcs_bucket}/{blob_name}")
+        self.log.info(f"Saved {len(commits)} commits to {gcs_path}")
 
     def _fetch_commits(self, date: datetime) -> List[dict]:
         self.log.info(f"Github Personal Access Token = {self.github_token}")
