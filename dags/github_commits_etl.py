@@ -23,15 +23,21 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
+# Define end_date as the current time with Ho_Chi_Minh timezone
+end_date = pendulum.now("Asia/Ho_Chi_Minh")
+# Define start_date as 6 months before the end_date
+start_date = end_date.subtract(months=6)
+
 with DAG(
     'github_commits_etl',
     default_args=default_args,
     description='ETL pipeline for GitHub commits',
     schedule_interval='0 8 * * *',  # Daily UTC
-    start_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
-    end_date=pendulum.datetime(2025,1,28,tz='Asia/Ho_Chi_Minh'),
+    start_date=start_date,
+    end_date=end_date,
     catchup=True,
     tags=['github', 'etl', 'airr_labs'],
+    max_active_runs=20
 ) as dag:
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
