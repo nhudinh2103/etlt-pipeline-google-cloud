@@ -11,7 +11,7 @@ def get_execution_date_as_datetime(execution_date: str) -> datetime:
     :param execution_date: Execution date string from Airflow (templated).
     :return: A datetime object.
     """
-    if isinstance(execution_date, datetime):
+    if isinstance(execution_date, datetime.date):
         return execution_date  # Already a datetime object
     
     return parse_execution_date(execution_date)  # Convert string to datetime
