@@ -29,8 +29,8 @@ class GCS:
         self.partition_date = partition_date
         self.hook_args = {'gcp_conn_id': gcp_conn_id}
         self.gcs_hook = GCSHook(**self.hook_args)
-        self.partition_date = partition_date
         self.log = log
+        self.log.info(f"partition_date = {partition_date}")
         
     def process_bronze_files(self, src_gcs_bucket: str, src_prefix: str, dest_gcs_bucket: str, dest_prefix: str) -> List[Dict[str, str]]:
         """
