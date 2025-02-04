@@ -65,34 +65,27 @@ with DAG(
     # )
 
     # Task 4: Load data to warehouse
-    load_data_to_warehouse = EmptyOperator(task_id='load_data_to_warehouse')
-    # load_data_to_warehouse = GCSToBigQueryOperator(
-    #     task_id='load_data_to_warehouse',
-    #     bucket=PipelineConfig.GCS_BUCKET,
-    #     source_objects=[
-    #         f"{PipelineConfig.STAGING_PATH}/dt={{{{ ds }}}}/commits_transformed.parquet"
-    #     ],
-    #     destination_project_dataset_table=(
-    #         f"{PipelineConfig.PROJECT_ID}."
-    #         f"{PipelineConfig.DATASET_ID}."
-    #         f"{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
-    #     ),
-    #     source_format='PARQUET',
-    #     write_disposition='WRITE_TRUNCATE',
-    #     create_disposition='CREATE_IF_NEEDED',
-    #     schema_fields=[
-    #         {'name': 'commit_sha', 'type': 'STRING', 'mode': 'REQUIRED'},
-    #         {'name': 'author_name', 'type': 'STRING', 'mode': 'REQUIRED'},
-    #         {'name': 'author_email', 'type': 'STRING', 'mode': 'REQUIRED'},
-    #         {'name': 'commit_message', 'type': 'STRING', 'mode': 'REQUIRED'},
-    #         {'name': 'committed_at', 'type': 'TIMESTAMP', 'mode': 'REQUIRED'},
-    #         {'name': 'created_date', 'type': 'DATE', 'mode': 'REQUIRED'}
-    #     ],
-    #     time_partitioning={
-    #         'type': 'DAY',
-    #         'field': 'created_date',
-    #     }
-    # )
+    # load_data_to_warehouse = EmptyOperator(task_id='load_data_to_warehouse')
+    load_data_to_warehouse = GCSToBigQueryOperator(
+        task_id='load_data_to_warehouse',
+        bucket=PipelineConfig.GCS_BUCKET,
+        source_objects=[
+            f"{PipelineConfig.GOLD_PATH}/dt={{{{ ds }}}}/commits.parquet"
+        ],
+        destination_project_dataset_table=(
+            f"{PipelineConfig.PROJECT_ID}."
+            f"{PipelineConfig.DATASET_ID}."
+            f"{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
+        ),
+        source_format='PARQUET',
+        write_disposition='WRITE_TRUNCATE',
+        create_disposition='CREATE_IF_NEEDED',
+        autodetect=True,
+        time_partitioning={
+            'type': 'DAY',
+            'field': 'partitioned_date',
+        }
+    )
 
     # Set task dependencies
     extract_raw_data >> transform_json_gcs_data >> convert_parquet_gcs_data >> load_data_to_warehouse

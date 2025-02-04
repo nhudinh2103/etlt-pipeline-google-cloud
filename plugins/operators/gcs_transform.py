@@ -44,11 +44,11 @@ class GCSTransformOperator(BaseOperator):
         transformed_data = []
         for commit in commits_data:
             transformed_commit = {
-                'committer_name': commit['commit']['committer']['name'],
-                'committer_date': commit['commit']['committer']['date'],
-                'committer_login': commit['committer'].get('login') if commit.get('committer') else None,
                 'committer_id': commit['committer'].get('id') if commit.get('committer') else None,
-                'committer_type': commit['committer'].get('type') if commit.get('committer') else None,
+                'committer_name': commit['commit']['committer']['name'],
+                'committer_date': commit['commit']['committer']['date']
+                # 'committer_login': commit['committer'].get('login') if commit.get('committer') else None,
+                # 'committer_type': commit['committer'].get('type') if commit.get('committer') else None,
             }
             transformed_data.append(transformed_commit)
         return transformed_data
