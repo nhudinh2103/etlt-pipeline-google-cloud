@@ -132,7 +132,7 @@ class GCS:
             self.log.info(f"parquet_output_path = {parquet_output_path}") 
         
         with io.open(json_input_path, 'r', encoding='utf-8') as input_file:            
-            json_content = json.loads(input_file)
+            json_content = json.loads(input_file.read())
             df = pd.DataFrame(json_content)
             
             # Only convert dt column to date if it exists
