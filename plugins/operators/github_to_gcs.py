@@ -29,7 +29,7 @@ class GitHubToGCSOperator(BaseOperator):
     def execute(self, context):
         
         self.log.info(f"GitHubToGCSOperator execute")
-        self.log.info(f"filter_date = {self.filter_date}")
+        self.log.info(f"partition_date = {self.partition_date}")
         
         # Get execution date
         run_date = self.partition_date
