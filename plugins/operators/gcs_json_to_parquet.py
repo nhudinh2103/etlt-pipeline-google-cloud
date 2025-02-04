@@ -5,7 +5,7 @@ from plugins.gcs import GCS
 from plugins.utils.time_utils import get_execution_date_as_datetime
 
 class GCSJsonToParquetOperator(BaseOperator):
-    template_fields = ('partition_date')
+    # template_fields = ('partition_date')
     """
     Operator that converts JSON data from GCS to Parquet format.
     """

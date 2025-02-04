@@ -7,7 +7,7 @@ from plugins.utils.time_utils import get_hive_partition_prefix_str,get_execution
 
 class GCSTransformOperator(BaseOperator):
     
-    template_fields = ('partition_date')
+    # template_fields = ('partition_date')
     
     """
     Operator that transforms GitHub commits data and saves to staging area.

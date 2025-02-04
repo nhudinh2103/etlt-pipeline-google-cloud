@@ -8,7 +8,7 @@ from plugins.utils.time_utils import get_execution_date_as_datetime
 
 
 class GitHubToGCSOperator(BaseOperator):
-    template_fields = ('partition_date')
+    # template_fields = ('partition_date')
     def __init__(
         self,
         task_id: str,
