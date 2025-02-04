@@ -3,7 +3,7 @@ from typing import List, Dict
 import json
 from datetime import datetime
 from plugins.gcs import GCS
-from plugins.utils.time_utils import get_hive_partition_prefix_str
+from plugins.utils.time_utils import get_hive_partition_prefix_str,get_execution_date_as_datetime
 
 class GCSTransformOperator(BaseOperator):
     
@@ -17,7 +17,7 @@ class GCSTransformOperator(BaseOperator):
         *,
         src_path: str,
         dest_path: str,
-        partition_date: datetime,
+        partition_date: str,
         **kwargs
     ) -> None:
         """
@@ -31,7 +31,9 @@ class GCSTransformOperator(BaseOperator):
         super().__init__(**kwargs)
         self.src_path = src_path
         self.dest_path = dest_path
-        self.partition_date = partition_date
+        
+        if partition_date:
+            self.partition_date = get_execution_date_as_datetime(partition_date)
 
     def transform_github_commits(self, commits_data: List[Dict]) -> List[Dict]:
         """

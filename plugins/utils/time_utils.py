@@ -4,7 +4,7 @@ from airflow.utils.dates import parse_execution_date
 def get_hive_partition_prefix_str(partition_time: datetime):
     return partition_time.strftime("dt=%Y-%m-%d")
 
-def get_execution_date_as_datetime(execution_date):
+def get_execution_date_as_datetime(execution_date: str) -> datetime:
     """
     Converts execution_date from a Jinja template string to a datetime object.
     

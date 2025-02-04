@@ -4,6 +4,8 @@ import requests
 import json
 from datetime import datetime, timedelta
 from plugins.gcs import GCS
+from utils.time_utils import get_execution_date_as_datetime, get_execution_date_as_datetime
+
 
 class GitHubToGCSOperator(BaseOperator):
     template_fields = ('partition_date')
@@ -14,7 +16,7 @@ class GitHubToGCSOperator(BaseOperator):
         gcs_bucket: str,
         bronze_path: str,
         api_url: str,
-        partition_date: datetime = None,
+        partition_date: str,
         batch_size: int = 100,
         **kwargs
     ):
@@ -24,8 +26,10 @@ class GitHubToGCSOperator(BaseOperator):
         self.bronze_path = bronze_path
         self.api_url = api_url
         self.batch_size = batch_size
-        self.partition_date = partition_date
-
+        
+        if partition_date:
+            self.partition_date = get_execution_date_as_datetime(partition_date)
+        
     def execute(self, context):
         
         self.log.info(f"GitHubToGCSOperator execute")

@@ -42,7 +42,7 @@ with DAG(
         bronze_path=PipelineConfig.BRONZE_PATH,
         api_url=PipelineConfig.GITHUB_API_URL,
         batch_size=PipelineConfig.API_BATCH_SIZE,
-        partition_date="{{ get_execution_date_as_datetime(execution_date) }}"
+        partition_date="{{ execution_date }}"
     )
 
     # Task 2: Transform data (normalize json to keep only necessary fields)
@@ -50,7 +50,7 @@ with DAG(
         task_id='transform_json_gcs_data',
         src_path=PipelineConfig.BRONZE_PATH,
         dest_path=PipelineConfig.SILVER_PATH,
-        partition_date="{{ get_execution_date_as_datetime(execution_date) }}"
+        partition_date="{{ execution_date }}"
     )
     
     # Task 3: Convert normalized json to parquet files
@@ -58,7 +58,7 @@ with DAG(
         task_id='convert_parquet_gcs_data',
         src_path=PipelineConfig.SILVER_PATH,
         dest_path=PipelineConfig.GOLD_PATH,
-        partition_date="{{ get_execution_date_as_datetime(execution_date) }}"
+        partition_date="{{ execution_date }}"
     )
     
     # transform_staging = DuckDBTransformOperator(
