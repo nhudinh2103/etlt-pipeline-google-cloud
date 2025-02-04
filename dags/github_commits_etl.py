@@ -45,6 +45,7 @@ with DAG(
 
     # Task 2: Transform data (normalize json to keep only necessary fields)
     transform_json_gcs_data = GCSTransformOperator(
+        task_id='transform_json_gcs_data',
         src_path=PipelineConfig.BRONZE_PATH,
         dest_path=PipelineConfig.SILVER_PATH,
         partition_date='{{ execution_date }}'
@@ -52,6 +53,7 @@ with DAG(
     
     # Task 3: Convert normalized json to parquet files
     convert_parquet_gcs_data = GCSJsonToParquetOperator(
+        task_id='convert_parquet_gcs_data',
         src_path=PipelineConfig.SILVER_PATH,
         dest_path=PipelineConfig.GOLD_PATH,
         partition_date='{{ execution_date }}'
