@@ -26,7 +26,7 @@ with DAG(
     'github_commits_etl',
     default_args=default_args,
     description='ETL pipeline for GitHub commits',
-    schedule_interval='0 8 * * *',  # Daily at midnight UTC
+    schedule_interval='0 8 * * *',  # Daily UTC
     start_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
     end_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
     catchup=True,
@@ -47,14 +47,14 @@ with DAG(
     transform_json_gcs_data = GCSTransformOperator(
         src_path=PipelineConfig.BRONZE_PATH,
         dest_path=PipelineConfig.SILVER_PATH,
-        partition_date={{ execution_date }}
+        partition_date='{{ execution_date }}'
     )
     
     # Task 3: Convert normalized json to parquet files
     convert_parquet_gcs_data = GCSJsonToParquetOperator(
         src_path=PipelineConfig.SILVER_PATH,
         dest_path=PipelineConfig.GOLD_PATH,
-        partition_date={{ execution_date }}
+        partition_date='{{ execution_date }}'
     )
     
     # transform_staging = DuckDBTransformOperator(
