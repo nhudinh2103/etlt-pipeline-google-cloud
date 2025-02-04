@@ -61,7 +61,7 @@ class GCSTransformOperator(BaseOperator):
         partition_path = get_hive_partition_prefix_str(self.partition_date)
         full_src_prefix = f"{src_blob}/{partition_path}"
         
-        self.log.info(f"Starting transformation for partition date: {partition_path)}")
+        self.log.info(f"Starting transformation for partition date: {partition_path}")
         self.log.info(f"Source path: {self.src_path}")
         
         src_bucket, src_blob = self.src_path.replace("gs://", "").split("/", 1)
