@@ -34,7 +34,7 @@ with DAG(
     tags=['github', 'etl', 'airr_labs'],
 ) as dag:
     
-    run_date = datetime.strptime('{{ execution_date }}', '%Y%-m%-d %H:%M:%S')
+    run_date = datetime.strptime('{{ execution_date }}', '%Y%-m%-%d %H:%M:%S')
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
     extract_raw_data = GitHubToGCSOperator(
