@@ -82,7 +82,7 @@ with DAG(
         autodetect=None,
         time_partitioning={
             'type': 'DAY',
-            'field': 'partitioned_date',
+            'field': 'dt',
         }
     )
 
