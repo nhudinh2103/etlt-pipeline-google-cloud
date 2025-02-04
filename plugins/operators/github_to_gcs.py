@@ -16,7 +16,7 @@ class GitHubToGCSOperator(BaseOperator):
         gcs_bucket: str,
         bronze_path: str,
         api_url: str,
-        partition_date: str,
+        
         batch_size: int = 100,
         **kwargs
     ):
@@ -27,19 +27,16 @@ class GitHubToGCSOperator(BaseOperator):
         self.api_url = api_url
         self.batch_size = batch_size
         
-        if partition_date:
-            self.partition_date = get_execution_date_as_datetime(partition_date)
-        
     def execute(self, context):
         
+        partition_date = context['execution_date']
+        
         self.log.info(f"GitHubToGCSOperator execute")
-        self.log.info(f"partition_date = {self.partition_date}")
+        self.log.info(f"partition_date = {partition_date}")
         
         # Get execution date
-        run_date = self.partition_date
-        if not run_date:
-            run_date = context['execution_date']
-        
+        run_date = context['execution_date']
+            
         # Fetch commits for the execution date
         commits = self._fetch_commits(run_date)
         if not commits:

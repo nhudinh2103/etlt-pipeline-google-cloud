@@ -31,9 +31,6 @@ class GCSTransformOperator(BaseOperator):
         super().__init__(**kwargs)
         self.src_path = src_path
         self.dest_path = dest_path
-        
-        if partition_date:
-            self.partition_date = get_execution_date_as_datetime(partition_date)
 
     def transform_github_commits(self, commits_data: List[Dict]) -> List[Dict]:
         """
@@ -62,8 +59,10 @@ class GCSTransformOperator(BaseOperator):
         Execute the operator to transform GitHub commits data and save to staging.
         """
         
+        partition_date = context['execution_date']
+        
         # Process files in partition
-        partition_path = get_hive_partition_prefix_str(self.partition_date)
+        partition_path = get_hive_partition_prefix_str(partition_date)
         full_src_prefix = f"{src_blob}/{partition_path}"
         
         self.log.info(f"Starting transformation for partition date: {partition_path}")
@@ -72,7 +71,7 @@ class GCSTransformOperator(BaseOperator):
         src_bucket, src_blob = self.src_path.replace("gs://", "").split("/", 1)
         dest_bucket, dest_blob = self.dest_path.replace("gs://", "").split("/", 1)
         
-        gcs = GCS(partition_date=self.partition_date, log=self.log)        
+        gcs = GCS(partition_date=partition_date, log=self.log)        
         blobs = gcs.gcs_hook.list(bucket_name=src_bucket, prefix=full_src_prefix)
         processed_files = []
         
