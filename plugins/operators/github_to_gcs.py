@@ -26,7 +26,6 @@ class GitHubToGCSOperator(BaseOperator):
     def execute(self, context):
         
         self.log.info(f"GitHubToGCSOperator execute")
-        pass
         
         # Get execution date
         execution_date = context['execution_date']
@@ -47,6 +46,7 @@ class GitHubToGCSOperator(BaseOperator):
         self.log.info(f"Saved {len(commits)} commits to gs://{self.gcs_bucket}/{blob_name}")
 
     def _fetch_commits(self, date: datetime) -> List[dict]:
+        self.log.info(f"Github Personal Access Token = {self.github_token}")
         headers = {
             "Authorization": f"token {self.github_token}",
             "Accept": "application/vnd.github.v3+json"
