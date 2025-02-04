@@ -13,7 +13,6 @@ class GitHubToGCSOperator(BaseOperator):
         self,
         task_id: str,
         github_token: str,
-        gcs_bucket: str,
         bronze_path: str,
         api_url: str,
         
@@ -22,7 +21,6 @@ class GitHubToGCSOperator(BaseOperator):
     ):
         super().__init__(task_id=task_id, **kwargs)
         self.github_token = github_token
-        self.gcs_bucket = gcs_bucket
         self.bronze_path = bronze_path
         self.api_url = api_url
         self.batch_size = batch_size
@@ -41,11 +39,13 @@ class GitHubToGCSOperator(BaseOperator):
             self.log.info(f"No commits found for date {run_date}")
             return
         
+        bucket, prefix = self.bronze_path.replace("gs://", "").split("/", 1)
+        
         # Initialize GCS client and upload
         gcs = GCS(partition_date=run_date, log=self.log)
         gcs_path = gcs.upload_to_gcs(
-            gcs_bucket=self.gcs_bucket, 
-            prefix=self.bronze_path, 
+            gcs_bucket=bucket, 
+            prefix=prefix, 
             blob_name="commits.json", 
             contents=commits
         )

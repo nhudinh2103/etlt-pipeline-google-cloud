@@ -9,9 +9,14 @@ class PipelineConfig:
     
     # GCS Configuration
     GCS_BUCKET = "airr-labs-interview"
-    BRONZE_PATH = "bronze/github_commits"
-    SILVER_PATH = "silver/github_commits"
-    GOLD_PATH = "gold/github_commits"
+    
+    BRONZE_PREFIX_PATH = "bronze/github_commits"
+    SILVER_PREFIX_PATH = "silver/github_commits"
+    GOLD_PREFIX_PATH = "gold/github_commits"
+    
+    BRONZE_PATH = f"gs://{GCS_BUCKET}/{BRONZE_PREFIX_PATH}"
+    SILVER_PATH = f"gs://{GCS_BUCKET}/{SILVER_PREFIX_PATH}"
+    GOLD_PATH = f"gs://{GCS_BUCKET}/{GOLD_PREFIX_PATH}"
     
     # BigQuery Configuration
     PROJECT_ID = "personal-project-447516"
