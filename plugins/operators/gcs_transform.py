@@ -1,7 +1,7 @@
 from airflow.models import BaseOperator
 from typing import List, Dict
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from plugins.gcs import GCS
 from plugins.utils.time_utils import get_hive_partition_prefix_str,get_execution_date_as_datetime
 
@@ -48,7 +48,7 @@ class GCSTransformOperator(BaseOperator):
                 'committer_id': commit['committer'].get('id') if commit.get('committer') else None,
                 'committer_name': commit['commit']['committer']['name'],
                 'committer_date': commit['commit']['committer']['date'],
-                'dt': commit_date.strftime('%Y-%m-%d'),
+                'dt': (commit_date + timedelta(hours=7)).strftime('%Y-%m-%d'),
                 # 'committer_login': commit['committer'].get('login') if commit.get('committer') else None,
                 # 'committer_type': commit['committer'].get('type') if commit.get('committer') else None,
             }
