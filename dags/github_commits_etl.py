@@ -7,6 +7,8 @@ from plugins.operators.github_to_gcs import GitHubToGCSOperator
 from plugins.operators.duckdb_transform import DuckDBTransformOperator
 from dags.config.pipeline_config import PipelineConfig
 
+from airflow.operators.empty import EmptyOperator
+
 import pendulum
 
 default_args = {
@@ -48,33 +50,34 @@ with DAG(
     )
 
     # Task 3: Load data to warehouse
-    load_data_to_warehouse = GCSToBigQueryOperator(
-        task_id='load_data_to_warehouse',
-        bucket=PipelineConfig.GCS_BUCKET,
-        source_objects=[
-            f"{PipelineConfig.STAGING_PATH}/dt={{{{ ds }}}}/commits_transformed.parquet"
-        ],
-        destination_project_dataset_table=(
-            f"{PipelineConfig.PROJECT_ID}."
-            f"{PipelineConfig.DATASET_ID}."
-            f"{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
-        ),
-        source_format='PARQUET',
-        write_disposition='WRITE_TRUNCATE',
-        create_disposition='CREATE_IF_NEEDED',
-        schema_fields=[
-            {'name': 'commit_sha', 'type': 'STRING', 'mode': 'REQUIRED'},
-            {'name': 'author_name', 'type': 'STRING', 'mode': 'REQUIRED'},
-            {'name': 'author_email', 'type': 'STRING', 'mode': 'REQUIRED'},
-            {'name': 'commit_message', 'type': 'STRING', 'mode': 'REQUIRED'},
-            {'name': 'committed_at', 'type': 'TIMESTAMP', 'mode': 'REQUIRED'},
-            {'name': 'created_date', 'type': 'DATE', 'mode': 'REQUIRED'}
-        ],
-        time_partitioning={
-            'type': 'DAY',
-            'field': 'created_date',
-        }
-    )
+    load_data_to_warehouse = EmptyOperator()
+    # load_data_to_warehouse = GCSToBigQueryOperator(
+    #     task_id='load_data_to_warehouse',
+    #     bucket=PipelineConfig.GCS_BUCKET,
+    #     source_objects=[
+    #         f"{PipelineConfig.STAGING_PATH}/dt={{{{ ds }}}}/commits_transformed.parquet"
+    #     ],
+    #     destination_project_dataset_table=(
+    #         f"{PipelineConfig.PROJECT_ID}."
+    #         f"{PipelineConfig.DATASET_ID}."
+    #         f"{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
+    #     ),
+    #     source_format='PARQUET',
+    #     write_disposition='WRITE_TRUNCATE',
+    #     create_disposition='CREATE_IF_NEEDED',
+    #     schema_fields=[
+    #         {'name': 'commit_sha', 'type': 'STRING', 'mode': 'REQUIRED'},
+    #         {'name': 'author_name', 'type': 'STRING', 'mode': 'REQUIRED'},
+    #         {'name': 'author_email', 'type': 'STRING', 'mode': 'REQUIRED'},
+    #         {'name': 'commit_message', 'type': 'STRING', 'mode': 'REQUIRED'},
+    #         {'name': 'committed_at', 'type': 'TIMESTAMP', 'mode': 'REQUIRED'},
+    #         {'name': 'created_date', 'type': 'DATE', 'mode': 'REQUIRED'}
+    #     ],
+    #     time_partitioning={
+    #         'type': 'DAY',
+    #         'field': 'created_date',
+    #     }
+    # )
 
     # Set task dependencies
     extract_raw_data >> transform_staging >> load_data_to_warehouse
