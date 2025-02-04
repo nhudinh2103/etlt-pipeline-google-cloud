@@ -28,10 +28,11 @@ class GitHubToGCSOperator(BaseOperator):
     def execute(self, context):
         
         self.log.info(f"GitHubToGCSOperator execute")
+        self.log.info(f"filter_date = {self.filter_date}")
         
         # Get execution date
-        filter_date = self.filter_date
-        if not filter_date:
+        run_date = self.filter_date
+        if not run_date:
             run_date = context['execution_date']
         
         # Fetch commits for the execution date
@@ -41,7 +42,7 @@ class GitHubToGCSOperator(BaseOperator):
             return
         
         # Initialize GCS client and upload
-        gcs = GCS(partition_date=filter_date, log=self.log)
+        gcs = GCS(partition_date=run_date, log=self.log)
         gcs_path = gcs.upload_to_gcs(
             gcs_bucket=self.gcs_bucket, 
             prefix=self.bronze_path, 
