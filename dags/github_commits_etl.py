@@ -42,7 +42,7 @@ with DAG(
         bronze_path=PipelineConfig.BRONZE_PATH,
         api_url=PipelineConfig.GITHUB_API_URL,
         batch_size=PipelineConfig.API_BATCH_SIZE,
-        filter_date='{{ execution_date }}'
+        partition_date='{{ execution_date }}'
     )
 
     # Task 2: Transform data (normalize json to keep only necessary fields)

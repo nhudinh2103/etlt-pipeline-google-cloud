@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from plugins.gcs import GCS
 
 class GitHubToGCSOperator(BaseOperator):
+    template_fields = ('partition_date')
     def __init__(
         self,
         task_id: str,
@@ -13,7 +14,7 @@ class GitHubToGCSOperator(BaseOperator):
         gcs_bucket: str,
         bronze_path: str,
         api_url: str,
-        filter_date: datetime = None,
+        partition_date: datetime = None,
         batch_size: int = 100,
         **kwargs
     ):
@@ -23,7 +24,7 @@ class GitHubToGCSOperator(BaseOperator):
         self.bronze_path = bronze_path
         self.api_url = api_url
         self.batch_size = batch_size
-        self.filter_date = filter_date
+        self.partition_date = partition_date
 
     def execute(self, context):
         
@@ -31,7 +32,7 @@ class GitHubToGCSOperator(BaseOperator):
         self.log.info(f"filter_date = {self.filter_date}")
         
         # Get execution date
-        run_date = self.filter_date
+        run_date = self.partition_date
         if not run_date:
             run_date = context['execution_date']
         

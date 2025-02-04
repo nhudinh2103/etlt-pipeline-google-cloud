@@ -5,6 +5,7 @@ from plugins.gcs import GCS
 
 
 class GCSJsonToParquetOperator(BaseOperator):
+    template_fields = ('partition_date')
     """
     Operator that converts JSON data from GCS to Parquet format.
     """
