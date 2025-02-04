@@ -56,23 +56,23 @@ class GCS:
             if not src_blob.endswith('.json'):
                 continue
             
-            dest_blob = os.path.splitext(src_blob)[0] + '.parquet'
-            full_dest_prefix = f"{dest_prefix}/{dest_blob}"
+            dest_file_name = os.path.basename(os.path.splitext(src_blob)[0])  + '.parquet'
+            dest_blob = f"{dest_prefix}/{dest_file_name}"
             
             if self.log:
-                self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{full_dest_prefix}")
+                self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{dest_blob}")
             
             self.__download_json_upload_parquet(
                 src_gcs_bucket=src_gcs_bucket, 
                 src_blob=src_blob,
                 dest_gcs_bucket=dest_gcs_bucket, 
-                dest_blob=full_dest_prefix,
+                dest_blob=dest_blob,
                 tmp_dir=dirpath
             )
             
             processed_files.append({
                 "source": f"gs://{src_gcs_bucket}/{src_blob}",
-                "destination": f"gs://{dest_gcs_bucket}/{full_dest_prefix}"
+                "destination": f"gs://{dest_gcs_bucket}/{dest_blob}"
             })
         
         return processed_files
