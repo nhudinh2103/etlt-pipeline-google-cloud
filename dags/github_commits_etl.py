@@ -1,7 +1,7 @@
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.utils.dates import days_ago
-from datetime import timedelta, datetime
+from datetime import timedelta
 
 from plugins.operators.github_to_gcs import GitHubToGCSOperator
 # from plugins.operators.duckdb_transform import DuckDBTransformOperator
@@ -34,7 +34,7 @@ with DAG(
     tags=['github', 'etl', 'airr_labs'],
 ) as dag:
     
-    run_date = datetime.strptime('{{ execution_date }}', '%Y-%m-%d %H:%M:%S')
+    run_date = '{{ execution_date }}'
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
     extract_raw_data = GitHubToGCSOperator(
@@ -44,7 +44,7 @@ with DAG(
         bronze_path=PipelineConfig.BRONZE_PATH,
         api_url=PipelineConfig.GITHUB_API_URL,
         batch_size=PipelineConfig.API_BATCH_SIZE,
-        filter_date={run_date}
+        filter_date=run_date
     )
 
     # Task 2: Transform data (normalize json to keep only necessary fields)
