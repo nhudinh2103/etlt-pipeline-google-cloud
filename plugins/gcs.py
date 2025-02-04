@@ -95,16 +95,17 @@ class GCS:
         if self.log:
             self.log.info(f"Downloading from GCS: gs://{src_gcs_bucket}/{src_blob}")
             self.log.info(f"Writing to temporary file: {temp_json.name}")
-        file_content = self.gcs_hook.download(
+            
+        json_input_path = self.gcs_hook.download(
             bucket_name=src_gcs_bucket,
             object_name=src_blob,
             filename=temp_json.name
         )
         
-        if not file_content:
+        if not json_input_path:
             return
         
-        self.__convert_json_to_parquet(json_input_content=file_content, parquet_output_path=temp_parquet.name)
+        self.__convert_json_to_parquet(json_input_path=json_input_path, parquet_output_path=temp_parquet.name)
 
         # Upload parquet data
         if self.log:
@@ -117,7 +118,7 @@ class GCS:
             mime_type='application/octet-stream'
         )
 
-    def __convert_json_to_parquet(self, json_input_content, parquet_output_path):
+    def __convert_json_to_parquet(self, json_input_path, parquet_output_path):
         """
         Convert JSON content to parquet format.
         
@@ -126,13 +127,14 @@ class GCS:
             parquet_output_path (str): Path to save parquet file
         """
         if self.log:
-            self.log.info(f"json_input_content = {json_input_content}") 
+            self.log.info(f"json_input_path = {json_input_path}") 
             self.log.info(f"parquet_output_path = {parquet_output_path}") 
-            
-        json_content = json.loads(json_input_content)
-        df = pd.DataFrame(json_content)
-        table = pa.Table.from_pandas(df)
-        pq.write_table(table, parquet_output_path)
+        
+        with open(json_input_path, 'r') as input_file:            
+            json_content = json.loads(input_file)
+            df = pd.DataFrame(json_content)
+            table = pa.Table.from_pandas(df)
+            pq.write_table(table, parquet_output_path)
     
     def upload_to_gcs(self, gcs_bucket: str, prefix: str, blob_name, contents) -> str:
         """
