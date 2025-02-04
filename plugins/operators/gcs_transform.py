@@ -62,13 +62,14 @@ class GCSTransformOperator(BaseOperator):
         
         # Process files in partition
         partition_path = get_hive_partition_prefix_str(partition_date)
-        full_src_prefix = f"{src_blob}/{partition_path}"
         
         self.log.info(f"Starting transformation for partition date: {partition_path}")
         self.log.info(f"Source path: {self.src_path}")
         
         src_bucket, src_blob = self.src_path.replace("gs://", "").split("/", 1)
         dest_bucket, dest_blob = self.dest_path.replace("gs://", "").split("/", 1)
+        
+        full_src_prefix = f"{src_blob}/{partition_path}"
         
         gcs = GCS(partition_date=partition_date, log=self.log)        
         blobs = gcs.gcs_hook.list(bucket_name=src_bucket, prefix=full_src_prefix)
