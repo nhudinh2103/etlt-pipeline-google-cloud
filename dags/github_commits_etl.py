@@ -34,8 +34,7 @@ with DAG(
     tags=['github', 'etl', 'airr_labs'],
 ) as dag:
     
-    run_date = '{{ execution_date }}'
-    logging.info(f"run_date = ${run_date}")
+    run_date = '{{ execution_date | as_datetime }}'
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
     extract_raw_data = GitHubToGCSOperator(
@@ -45,6 +44,7 @@ with DAG(
         bronze_path=PipelineConfig.BRONZE_PATH,
         api_url=PipelineConfig.GITHUB_API_URL,
         batch_size=PipelineConfig.API_BATCH_SIZE,
+        filter_date={run_date}
     )
 
     # Task 2: Transform data (normalize json to keep only necessary fields)
