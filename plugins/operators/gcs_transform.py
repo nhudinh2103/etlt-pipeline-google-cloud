@@ -3,6 +3,7 @@ from typing import List, Dict
 import json
 from datetime import datetime
 from plugins.gcs import GCS
+from plugins.utils.time_utils import get_hive_partition_prefix_str
 
 class GCSTransformOperator(BaseOperator):
     """
@@ -55,18 +56,18 @@ class GCSTransformOperator(BaseOperator):
         """
         Execute the operator to transform GitHub commits data and save to staging.
         """
-        self.log.info(f"Starting transformation for partition date: {self.partition_date.strftime('%Y-%m-%d')}")
+        
+        # Process files in partition
+        partition_path = get_hive_partition_prefix_str(self.partition_date)
+        full_src_prefix = f"{src_blob}/{partition_path}"
+        
+        self.log.info(f"Starting transformation for partition date: {partition_path)}")
         self.log.info(f"Source path: {self.src_path}")
         
         src_bucket, src_blob = self.src_path.replace("gs://", "").split("/", 1)
         dest_bucket, dest_blob = self.dest_path.replace("gs://", "").split("/", 1)
         
-        gcs = GCS(partition_date=self.partition_date, log=self.log)
-        
-        # Process files in partition
-        partition_path = self.partition_date.strftime("%Y/%m/%d")
-        full_src_prefix = f"{src_blob}/{partition_path}"
-        
+        gcs = GCS(partition_date=self.partition_date, log=self.log)        
         blobs = gcs.gcs_hook.list(bucket_name=src_bucket, prefix=full_src_prefix)
         processed_files = []
         
@@ -107,6 +108,6 @@ class GCSTransformOperator(BaseOperator):
                 "destination": f"gs://{dest_bucket}/{dest_blob_path}"
             })
         
-        self.log.info(f"Successfully transformed {len(processed_files)} files for partition date: {self.partition_date.strftime('%Y-%m-%d')}")
+        self.log.info(f"Successfully transformed {len(processed_files)} files for partition date: {partition_path}")
         for file_info in processed_files:
             self.log.info(f"Transformed: {file_info['source']} -> {file_info['destination']}")

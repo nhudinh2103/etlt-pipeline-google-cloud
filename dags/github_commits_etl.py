@@ -8,6 +8,7 @@ from plugins.operators.github_to_gcs import GitHubToGCSOperator
 from plugins.operators.gcs_transform import GCSTransformOperator
 from plugins.operators.gcs_json_to_parquet import GCSJsonToParquetOperator
 from dags.config.pipeline_config import PipelineConfig
+import logging
 
 from airflow.operators.empty import EmptyOperator
 
@@ -28,10 +29,13 @@ with DAG(
     description='ETL pipeline for GitHub commits',
     schedule_interval='0 8 * * *',  # Daily UTC
     start_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
-    end_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
+    end_date=pendulum.datetime(2025,1,28,tz='Asia/Ho_Chi_Minh'),
     catchup=True,
     tags=['github', 'etl', 'airr_labs'],
 ) as dag:
+    
+    run_date = '{{ execution_date }}'
+    logging.info(f"run_date = ${run_date}")
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
     extract_raw_data = GitHubToGCSOperator(
@@ -48,7 +52,7 @@ with DAG(
         task_id='transform_json_gcs_data',
         src_path=PipelineConfig.BRONZE_PATH,
         dest_path=PipelineConfig.SILVER_PATH,
-        partition_date='{{ execution_date }}'
+        partition_date=run_date
     )
     
     # Task 3: Convert normalized json to parquet files
@@ -56,7 +60,7 @@ with DAG(
         task_id='convert_parquet_gcs_data',
         src_path=PipelineConfig.SILVER_PATH,
         dest_path=PipelineConfig.GOLD_PATH,
-        partition_date='{{ execution_date }}'
+        partition_date=run_date
     )
     
     # transform_staging = DuckDBTransformOperator(

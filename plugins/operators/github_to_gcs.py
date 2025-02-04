@@ -13,6 +13,7 @@ class GitHubToGCSOperator(BaseOperator):
         gcs_bucket: str,
         bronze_path: str,
         api_url: str,
+        filter_date: datetime = None,
         batch_size: int = 100,
         **kwargs
     ):
@@ -22,25 +23,25 @@ class GitHubToGCSOperator(BaseOperator):
         self.bronze_path = bronze_path
         self.api_url = api_url
         self.batch_size = batch_size
+        self.filter_date = filter_date
 
     def execute(self, context):
         
         self.log.info(f"GitHubToGCSOperator execute")
         
         # Get execution date
-        execution_date = context['execution_date']
+        filter_date = self.filter_date
+        if not filter_date:
+            run_date = context['execution_date']
         
         # Fetch commits for the execution date
-        commits = self._fetch_commits(execution_date)
+        commits = self._fetch_commits(run_date)
         if not commits:
-            self.log.info(f"No commits found for date {execution_date}")
+            self.log.info(f"No commits found for date {run_date}")
             return
-
-        # Save commits as JSON
-        partition_date = execution_date.strftime('%Y-%m-%d')
         
         # Initialize GCS client and upload
-        gcs = GCS(partition_date=execution_date, log=self.log)
+        gcs = GCS(partition_date=filter_date, log=self.log)
         gcs_path = gcs.upload_to_gcs(
             gcs_bucket=self.gcs_bucket, 
             prefix=self.bronze_path, 
@@ -58,8 +59,12 @@ class GitHubToGCSOperator(BaseOperator):
         }
         
         # Format date for GitHub API
-        since = date.replace(hour=0, minute=0, second=0).isoformat() + 'Z'
+        since = (date - timedelta(days=1)).replace(hour=17, minute=0, second=0).isoformat() + 'Z'
         until = date.replace(hour=16, minute=59, second=59).isoformat() + 'Z'
+        
+        self.log.info(f"Call Github API: {self.api_url}")
+        self.log.info(f"since: {since}")
+        self.log.info(f"until: {until}")
         
         params = {
             "since": since,
@@ -84,15 +89,6 @@ class GitHubToGCSOperator(BaseOperator):
                 break
             
             commits.extend(page_commits)
-            # commits.extend([{
-            #     'commit_sha': commit['sha'],
-            #     'author_name': commit['commit']['author']['name'],
-            #     'author_email': commit['commit']['author']['email'],
-            #     'commit_message': commit['commit']['message'],
-            #     'committed_at': commit['commit']['author']['date'],
-            #     'created_date': date.strftime('%Y-%m-%d')
-            # } for commit in page_commits])
-            
             page += 1
             self.log.info(f"Fetched page {page-1} with {len(page_commits)} commits")
             

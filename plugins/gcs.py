@@ -7,6 +7,7 @@ from io import BytesIO
 import tempfile
 import os
 from dags.config.pipeline_config import PipelineConfig
+from plugins.utils.time_utils import get_hive_partition_prefix_str
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -41,8 +42,8 @@ class GCS:
         Returns:
             List[Dict[str, str]]: List of processed files with their source and destination paths
         """
-        # Format partition path
-        partition_path = self.partition_date.strftime("%Y/%m/%d")
+        # Format partition path using hive format
+        partition_path = get_hive_partition_prefix_str(self.partition_date)
         full_src_prefix = f"{src_prefix}/{partition_path}"
         
         # List all files in the partition
@@ -142,7 +143,7 @@ class GCS:
             str: Full GCS path of the uploaded file
         """
         
-        prefix = f"{prefix}/dt={self.partition_date}/{blob_name}"
+        prefix = f"{prefix}/{get_hive_partition_prefix_str(self.partition_date)}/{blob_name}"
         
         if self.log:
             self.log.info(f"Uploading to GCS: gs://{gcs_bucket}/{prefix}")
