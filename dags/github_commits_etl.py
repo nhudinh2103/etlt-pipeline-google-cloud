@@ -68,6 +68,7 @@ with DAG(
     # load_data_to_warehouse = EmptyOperator(task_id='load_data_to_warehouse')
     load_data_to_warehouse = GCSToBigQueryOperator(
         task_id='load_data_to_warehouse',
+        bigquery_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
         bucket=PipelineConfig.GCS_BUCKET,
         source_objects=[
             f"{PipelineConfig.GOLD_PATH}/dt={{{{ ds }}}}/commits.parquet"
