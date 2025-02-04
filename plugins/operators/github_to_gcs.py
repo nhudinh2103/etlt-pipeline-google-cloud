@@ -4,7 +4,7 @@ import requests
 import json
 from datetime import datetime, timedelta
 from plugins.gcs import GCS
-from utils.time_utils import get_execution_date_as_datetime, get_execution_date_as_datetime
+from plugins.utils.time_utils import get_execution_date_as_datetime
 
 
 class GitHubToGCSOperator(BaseOperator):

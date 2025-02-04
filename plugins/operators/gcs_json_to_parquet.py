@@ -2,7 +2,7 @@ from airflow.models import BaseOperator
 from typing import Optional
 from datetime import datetime
 from plugins.gcs import GCS
-from utils.time_utils import get_execution_date_as_datetime
+from plugins.utils.time_utils import get_execution_date_as_datetime
 
 class GCSJsonToParquetOperator(BaseOperator):
     template_fields = ('partition_date')
