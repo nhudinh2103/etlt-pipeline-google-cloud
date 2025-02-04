@@ -20,8 +20,8 @@ class PipelineConfig:
     
     # BigQuery Configuration
     PROJECT_ID = "personal-project-447516"
-    DATASET_ID = "github_data"
-    TABLE_ID = "commits"
+    DATASET_ID = "airr-labs-interview"
+    TABLE_ID = "raw_commits"
     
     GCS_AIRR_LAB_CONNECTION = 'gcs_airr_lab_interviews'
     
