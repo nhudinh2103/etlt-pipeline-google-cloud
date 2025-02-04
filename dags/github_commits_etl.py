@@ -38,7 +38,6 @@ with DAG(
     extract_raw_data = GitHubToGCSOperator(
         task_id='extract_raw_data',
         github_token=PipelineConfig.GITHUB_TOKEN,
-        gcs_bucket=PipelineConfig.GCS_BUCKET,
         bronze_path=PipelineConfig.BRONZE_PATH,
         api_url=PipelineConfig.GITHUB_API_URL,
         batch_size=PipelineConfig.API_BATCH_SIZE

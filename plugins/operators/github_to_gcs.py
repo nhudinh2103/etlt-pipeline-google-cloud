@@ -11,6 +11,7 @@ class GitHubToGCSOperator(BaseOperator):
     # template_fields = ('partition_date')
     def __init__(
         self,
+        *,
         task_id: str,
         github_token: str,
         bronze_path: str,
