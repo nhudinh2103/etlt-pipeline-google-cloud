@@ -98,8 +98,7 @@ class GCS:
         file_content = self.gcs_hook.download(
             bucket_name=src_gcs_bucket,
             object_name=src_blob,
-            filename=temp_json.name,
-            encoding='utf-8'
+            filename=temp_json.name
         )
         
         if not file_content:
