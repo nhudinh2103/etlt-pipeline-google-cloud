@@ -50,7 +50,7 @@ with DAG(
     )
 
     # Task 3: Load data to warehouse
-    load_data_to_warehouse = EmptyOperator()
+    load_data_to_warehouse = EmptyOperator(task_id='load_data_to_warehouse')
     # load_data_to_warehouse = GCSToBigQueryOperator(
     #     task_id='load_data_to_warehouse',
     #     bucket=PipelineConfig.GCS_BUCKET,
