@@ -5,7 +5,9 @@ from datetime import timedelta
 
 from plugins.operators.github_to_gcs import GitHubToGCSOperator
 from plugins.operators.duckdb_transform import DuckDBTransformOperator
-from config.pipeline_config import PipelineConfig
+from dags.config.pipeline_config import PipelineConfig
+
+import pendulum
 
 default_args = {
     'owner': 'airflow',
@@ -21,9 +23,10 @@ with DAG(
     default_args=default_args,
     description='ETL pipeline for GitHub commits',
     schedule_interval='0 0 * * *',  # Daily at midnight UTC
-    start_date=days_ago(1),
-    catchup=False,
-    tags=['github', 'etl'],
+    start_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
+    end_date=pendulum.datetime(2025,1,27,tz='Asia/Ho_Chi_Minh'),
+    catchup=True,
+    tags=['github', 'etl', 'airr_labs'],
 ) as dag:
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)

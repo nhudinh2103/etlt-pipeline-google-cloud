@@ -4,7 +4,7 @@ from dataclasses import dataclass
 class PipelineConfig:
     # GitHub API Configuration
     GITHUB_API_URL = "https://api.github.com/repos/apache/airflow/commits"
-    GITHUB_TOKEN = "{{ var.value.github_token }}"
+    GITHUB_TOKEN = "{{ var.value.GITHUB_TOKEN_SECRET }}"
     
     # GCS Configuration
     GCS_BUCKET = "airr-labs-interview"
