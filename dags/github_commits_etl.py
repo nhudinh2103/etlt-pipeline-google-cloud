@@ -10,8 +10,6 @@ from plugins.operators.gcs_json_to_parquet import GCSJsonToParquetOperator
 from dags.config.pipeline_config import PipelineConfig
 import logging
 
-from plugins.utils.time_utils import get_execution_date
-
 from airflow.operators.empty import EmptyOperator
 
 import pendulum
