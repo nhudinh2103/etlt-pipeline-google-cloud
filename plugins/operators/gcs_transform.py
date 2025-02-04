@@ -84,8 +84,7 @@ class GCSTransformOperator(BaseOperator):
             # Download and transform
             file_content = gcs.gcs_hook.download(
                 bucket_name=src_bucket,
-                object_name=src_blob_path,
-                encoding='utf-8'
+                object_name=src_blob_path
             )
             
             if not file_content:
