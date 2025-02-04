@@ -11,6 +11,7 @@ from plugins.utils.time_utils import get_hive_partition_prefix_str
 
 import pyarrow as pa
 import pyarrow.parquet as pq
+import io
 
 
 
@@ -56,23 +57,23 @@ class GCS:
             if not src_blob.endswith('.json'):
                 continue
             
-            dest_file_name = os.path.basename(os.path.splitext(src_blob)[0])  + '.parquet'
-            dest_blob = f"{dest_prefix}/{partition_path}/{dest_file_name}"
+            dest_blob = os.path.splitext(src_blob)[0] + '.parquet'
+            full_dest_prefix = f"{dest_prefix}/{dest_blob}"
             
             if self.log:
-                self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{dest_blob}")
+                self.log.info(f"Processing file: gs://{src_gcs_bucket}/{src_blob} -> gs://{dest_gcs_bucket}/{full_dest_prefix}")
             
             self.__download_json_upload_parquet(
                 src_gcs_bucket=src_gcs_bucket, 
                 src_blob=src_blob,
                 dest_gcs_bucket=dest_gcs_bucket, 
-                dest_blob=dest_blob,
+                dest_blob=full_dest_prefix,
                 tmp_dir=dirpath
             )
             
             processed_files.append({
                 "source": f"gs://{src_gcs_bucket}/{src_blob}",
-                "destination": f"gs://{dest_gcs_bucket}/{dest_blob}"
+                "destination": f"gs://{dest_gcs_bucket}/{full_dest_prefix}"
             })
         
         return processed_files
@@ -130,10 +131,14 @@ class GCS:
             self.log.info(f"json_input_path = {json_input_path}") 
             self.log.info(f"parquet_output_path = {parquet_output_path}") 
         
-        with open(json_input_path, 'r', encoding='utf-8') as input_file:
-            file_content = input_file.read()
-            json_content = json.loads(file_content)
+        with io.open(json_input_path, 'r', encoding='utf-8') as input_file:            
+            json_content = json.loads(input_file)
             df = pd.DataFrame(json_content)
+            
+            # Only convert dt column to date if it exists
+            if 'dt' in df.columns:
+                df['dt'] = pd.to_datetime(df['dt']).dt.date
+            
             table = pa.Table.from_pandas(df)
             pq.write_table(table, parquet_output_path)
     

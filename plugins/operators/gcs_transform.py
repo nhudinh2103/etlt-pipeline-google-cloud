@@ -43,10 +43,12 @@ class GCSTransformOperator(BaseOperator):
         """
         transformed_data = []
         for commit in commits_data:
+            commit_date = datetime.strptime(commit['commit']['committer']['date'], '%Y-%m-%dT%H:%M:%SZ')
             transformed_commit = {
                 'committer_id': commit['committer'].get('id') if commit.get('committer') else None,
                 'committer_name': commit['commit']['committer']['name'],
-                'committer_date': commit['commit']['committer']['date']
+                'committer_date': commit['commit']['committer']['date'],
+                'dt': commit_date.strftime('%Y-%m-%d'),
                 # 'committer_login': commit['committer'].get('login') if commit.get('committer') else None,
                 # 'committer_type': commit['committer'].get('type') if commit.get('committer') else None,
             }
