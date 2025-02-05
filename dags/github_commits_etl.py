@@ -51,7 +51,7 @@ with DAG(
                 'query': "{% include 'sql/init_table.sql' %}",
                 'useLegacySql': False,
             }    
-        }
+        },
         params={
             "dt": "{{ execution_time }}"
         }
