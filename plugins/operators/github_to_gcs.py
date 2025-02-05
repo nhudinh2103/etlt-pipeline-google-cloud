@@ -54,7 +54,6 @@ class GitHubToGCSOperator(BaseOperator):
         self.log.info(f"Saved {len(commits)} commits to {gcs_path}")
 
     def _fetch_commits(self, date: datetime) -> List[dict]:
-        self.log.info(f"Github Personal Access Token = {self.github_token}")
         headers = {
             "Authorization": f"token {self.github_token}",
             "Accept": "application/vnd.github.v3+json"
@@ -93,6 +92,9 @@ class GitHubToGCSOperator(BaseOperator):
                 self.log.error(f"Response content: {response.text}")
                 break
             
+            self.log.info(f"response = {response}")
+            self.log.info(f"Response status code: {response.status_code}")
+            self.log.info(f"Response content: {response.text}")
             page_commits = response.json()
             if not page_commits:
                 break
