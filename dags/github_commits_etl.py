@@ -1,5 +1,6 @@
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
 from airflow.utils.dates import days_ago
 from datetime import timedelta
 
@@ -39,6 +40,14 @@ with DAG(
     tags=['github', 'etl', 'airr_labs'],
     max_active_runs=18
 ) as dag:
+    
+    # Task 0: Init necessary table (if not created)
+    init_table = BigQueryExecuteQueryOperator(
+        task_id='init_table',
+        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
+        sql='sql/init_table.sql',
+        use_legacy_sql=False
+    )
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
     extract_raw_data = GitHubToGCSOperator(
@@ -63,15 +72,7 @@ with DAG(
         dest_path=PipelineConfig.GOLD_PATH
     )
     
-    # transform_staging = DuckDBTransformOperator(
-    #     task_id='transform_staging',
-    #     source_path=f"gs://{PipelineConfig.GCS_BUCKET}/{PipelineConfig.BRONZE_PATH}/dt={{{{ ds }}}}/commits.parquet",
-    #     destination_path=f"gs://{PipelineConfig.GCS_BUCKET}/{PipelineConfig.STAGING_PATH}/dt={{{{ ds }}}}/commits_transformed.parquet",
-    #     sql_path='dags/sql/transform_commits.sql'
-    # )
-
     # Task 4: Load data to warehouse
-    # load_data_to_warehouse = EmptyOperator(task_id='load_data_to_warehouse')
     load_data_to_warehouse = GCSToBigQueryOperator(
         task_id='load_data_to_warehouse',
         gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
@@ -91,6 +92,48 @@ with DAG(
             'field': 'dt',
         }
     )
+    
+    # Task 5: Create date dimension
+    update_d_date = BigQueryExecuteQueryOperator(
+        task_id='update_d_date',
+        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
+        sql='sql/d_date.sql',
+        use_legacy_sql=False,
+        write_disposition='WRITE_TRUNCATE',
+        create_disposition='CREATE_IF_NEEDED',
+        dataset_id=PipelineConfig.DATASET_ID,
+        project_id=PipelineConfig.PROJECT_ID
+    )
+    
+    # Task 6: Create time dimension
+    create_d_time = BigQueryExecuteQueryOperator(
+        task_id='create_d_time',
+        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
+        sql='sql/d_time.sql',
+        use_legacy_sql=False,
+        write_disposition='WRITE_TRUNCATE',
+        create_disposition='CREATE_IF_NEEDED',
+        dataset_id=PipelineConfig.DATASET_ID,
+        project_id=PipelineConfig.PROJECT_ID
+    )
+
+    # Task 7: Create fact table
+    update_f_commits_hourly = BigQueryExecuteQueryOperator(
+        task_id='update_f_commits_hourly',
+        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
+        sql='sql/f_commits_hourly.sql',
+        use_legacy_sql=False,
+        write_disposition='WRITE_TRUNCATE',
+        create_disposition='CREATE_IF_NEEDED',
+        dataset_id=PipelineConfig.DATASET_ID,
+        project_id=PipelineConfig.PROJECT_ID
+    )
 
     # Set task dependencies
-    extract_raw_data >> transform_json_gcs_data >> convert_parquet_gcs_data >> load_data_to_warehouse
+    
+    # Ingest new data to staging table
+    init_table >> extract_raw_data >> transform_json_gcs_data >> convert_parquet_gcs_data >> load_data_to_warehouse
+    
+    # Update data mart
+    load_data_to_warehouse >> [update_d_date, create_d_time]
+    load_data_to_warehouse >> update_f_commits_hourly
