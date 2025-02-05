@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from plugins.gcs import GCS
 from plugins.utils.time_utils import get_execution_date_as_datetime
 import curlify
+import urllib.parse
 
 class GitHubToGCSOperator(BaseOperator):
     # template_fields = ('partition_date')
@@ -80,11 +81,16 @@ class GitHubToGCSOperator(BaseOperator):
             
             try:
                 params["page"] = page
+                
+                # Fix some case since and until encoded '+' char => response empty
+                encode_params_str = urllib.parse.urlencode(params, safe=':+')
+                
                 response = requests.get(
                     self.api_url,
                     headers=headers,
-                    params=params
+                    params=encode_params_str
                 )
+                
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
                 self.log.error(f"HTTP error occurred while fetching commits: {str(e)}")
@@ -96,6 +102,7 @@ class GitHubToGCSOperator(BaseOperator):
             self.log.info(f"Response status code: {response.status_code}")
             self.log.info(f"Response content: {response.text}")
             page_commits = response.json()
+            
             if not page_commits:
                 self.log.info(f"curl: {curlify.to_curl(response.request)}")
                 break
