@@ -105,19 +105,6 @@ with DAG(
             }    
         }
     )
-    
-    # Task 6: Create time dimension
-    create_d_time = BigQueryInsertJobOperator(
-        task_id='create_d_time',
-        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        project_id=PipelineConfig.PROJECT_ID,
-        configuration={
-            "query": {
-                'query': "{% include 'sql/d_time.sql' %}",
-                'useLegacySql': False,
-            }    
-        }
-    )
 
     # Task 7: Create fact table
     update_f_commits_hourly = BigQueryInsertJobOperator(
@@ -138,5 +125,4 @@ with DAG(
     init_table >> extract_raw_data >> transform_json_gcs_data >> convert_parquet_gcs_data >> load_data_to_warehouse
     
     # Update data mart
-    load_data_to_warehouse >> [update_d_date, create_d_time]
-    load_data_to_warehouse >> update_f_commits_hourly
+    load_data_to_warehouse >> [update_d_date, update_f_commits_hourly]
