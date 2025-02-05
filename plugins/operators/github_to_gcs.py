@@ -8,7 +8,7 @@ from plugins.utils.time_utils import get_execution_date_as_datetime
 import curlify
 
 class GitHubToGCSOperator(BaseOperator):
-    # template_fields = ('partition_date')
+
     def __init__(
         self,
         *,
@@ -60,8 +60,8 @@ class GitHubToGCSOperator(BaseOperator):
         }
         
         # Format date for GitHub API
-        since = (date - timedelta(days=1)).replace(hour=17, minute=0, second=0).strftime('YYYY-MM-DDTHH:MM:SS') + 'Z'
-        until = date.replace(hour=16, minute=59, second=59).strftime('YYYY-MM-DDTHH:MM:SS') + 'Z'
+        since = (date - timedelta(days=1)).replace(hour=17, minute=0, second=0).strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
+        until = date.replace(hour=16, minute=59, second=59).strftime('%Y-%m-%dT%H:%M:%S') + 'Z'
         
         self.log.info(f"Call Github API: {self.api_url}")
         self.log.info(f"since: {since}")
