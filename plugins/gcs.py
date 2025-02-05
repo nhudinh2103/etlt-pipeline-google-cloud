@@ -6,7 +6,7 @@ from datetime import datetime
 from io import BytesIO
 import tempfile
 import os
-from dags.config.pipeline_config import PipelineConfig
+from dags.config.config import Config
 from plugins.utils.time_utils import get_hive_partition_prefix_str
 
 import pyarrow as pa
@@ -18,7 +18,7 @@ class GCS:
     Helper class for GCS operations with built-in partition date handling.
     """
     
-    def __init__(self, partition_date: datetime, gcp_conn_id = PipelineConfig.GCS_AIRR_LAB_CONNECTION, log = None) -> None:
+    def __init__(self, partition_date: datetime, gcp_conn_id = Config.GCS_AIRR_LAB_CONNECTION, log = None) -> None:
         """
         Initialize GCSHelper with partition date.
         
@@ -29,7 +29,6 @@ class GCS:
         self.hook_args = {'gcp_conn_id': gcp_conn_id}
         self.gcs_hook = GCSHook(**self.hook_args)
         self.log = log
-        self.log.info(f"partition_date = {partition_date}")
         
     def process_bronze_files(self, src_gcs_bucket: str, src_prefix: str, dest_gcs_bucket: str, dest_prefix: str) -> List[Dict[str, str]]:
         """

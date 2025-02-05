@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from airflow.models import Variable
 
 @dataclass
-class PipelineConfig:
+class Config:
     # GitHub API Configuration
     GITHUB_API_URL = "https://api.github.com/repos/apache/airflow/commits"
     GITHUB_TOKEN = Variable.get("GITHUB_TOKEN_SECRET")

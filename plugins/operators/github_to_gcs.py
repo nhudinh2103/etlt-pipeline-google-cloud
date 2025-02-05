@@ -28,11 +28,8 @@ class GitHubToGCSOperator(BaseOperator):
         
     def execute(self, context):
         
-        self.log.info(f"GitHubToGCSOperator execute")
-        
         # Get execution date
         run_date = context['execution_date']
-        self.log.info(f"run_date = {run_date}")
             
         # Fetch commits for the execution date
         commits = self._fetch_commits(run_date)

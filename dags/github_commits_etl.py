@@ -6,7 +6,7 @@ from datetime import timedelta
 from plugins.operators.github_to_gcs import GitHubToGCSOperator
 from plugins.operators.gcs_transform import GCSTransformOperator
 from plugins.operators.gcs_json_to_parquet import GCSJsonToParquetOperator
-from dags.config.pipeline_config import PipelineConfig
+from dags.config.config import Config
 
 import pendulum
 
@@ -39,8 +39,8 @@ with DAG(
     # Task 0: Init necessary table (if not created)
     init_table = BigQueryInsertJobOperator(
         task_id='init_table',
-        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        project_id=PipelineConfig.PROJECT_ID,
+        gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
+        project_id=Config.PROJECT_ID,
         configuration={
             "query": {
                 'query': "{% include 'sql/init_table.sql' %}",
@@ -52,36 +52,36 @@ with DAG(
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
     extract_raw_data = GitHubToGCSOperator(
         task_id='extract_raw_data',
-        github_token=PipelineConfig.GITHUB_TOKEN,
-        bronze_path=PipelineConfig.BRONZE_PATH,
-        api_url=PipelineConfig.GITHUB_API_URL,
-        batch_size=PipelineConfig.API_BATCH_SIZE
+        github_token=Config.GITHUB_TOKEN,
+        bronze_path=Config.BRONZE_PATH,
+        api_url=Config.GITHUB_API_URL,
+        batch_size=Config.API_BATCH_SIZE
     )
 
     # Task 2: Transform data (normalize json to keep only necessary fields)
     transform_json_gcs_data = GCSTransformOperator(
         task_id='transform_json_gcs_data',
-        src_path=PipelineConfig.BRONZE_PATH,
-        dest_path=PipelineConfig.SILVER_PATH
+        src_path=Config.BRONZE_PATH,
+        dest_path=Config.SILVER_PATH
     )
     
     # Task 3: Convert normalized json to parquet files
     convert_parquet_gcs_data = GCSJsonToParquetOperator(
         task_id='convert_parquet_gcs_data',
-        src_path=PipelineConfig.SILVER_PATH,
-        dest_path=PipelineConfig.GOLD_PATH
+        src_path=Config.SILVER_PATH,
+        dest_path=Config.GOLD_PATH
     )
     
     # Task 4: Load data to warehouse
     load_data_to_warehouse = GCSToBigQueryOperator(
         task_id='load_data_to_warehouse',
-        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        bucket=PipelineConfig.GCS_BUCKET,
+        gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
+        bucket=Config.GCS_BUCKET,
         source_objects=[
-            f"{PipelineConfig.GOLD_PREFIX_PATH}/dt={{{{ ds }}}}/commits.parquet"
+            f"{Config.GOLD_PREFIX_PATH}/dt={{{{ ds }}}}/commits.parquet"
         ],
         destination_project_dataset_table=(
-            f"{PipelineConfig.PROJECT_ID}.{PipelineConfig.DATASET_ID}.{PipelineConfig.STAGING_COMMITS_TABLE_NAME}${{{{ ds_nodash }}}}"
+            f"{Config.PROJECT_ID}.{Config.DATASET_ID}.{Config.STAGING_COMMITS_TABLE_NAME}${{{{ ds_nodash }}}}"
         ),
         source_format='PARQUET',
         write_disposition='WRITE_TRUNCATE',
@@ -96,8 +96,8 @@ with DAG(
     # Task 5: Create date dimension
     update_d_date = BigQueryInsertJobOperator(
         task_id='update_d_date',
-        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        project_id=PipelineConfig.PROJECT_ID,
+        gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
+        project_id=Config.PROJECT_ID,
         configuration={
             "query": {
                 'query': "{% include 'sql/d_date.sql' %}",
@@ -109,8 +109,8 @@ with DAG(
     # Task 7: Create fact table
     update_f_commits_hourly = BigQueryInsertJobOperator(
         task_id='update_f_commits_hourly',
-        gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        project_id=PipelineConfig.PROJECT_ID,
+        gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
+        project_id=Config.PROJECT_ID,
         configuration={
             "query": {
                 'query': "{% include 'sql/f_commits_hourly.sql' %}",
