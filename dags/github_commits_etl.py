@@ -109,6 +109,7 @@ with DAG(
                 'useLegacySql': False,
             }    
         }
+    )
     
     # Task 6: Create time dimension
     create_d_time = BigQueryInsertJobOperator(
