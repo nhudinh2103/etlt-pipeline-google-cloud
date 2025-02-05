@@ -78,13 +78,20 @@ class GitHubToGCSOperator(BaseOperator):
         page = 1
         
         while True:
-            params["page"] = page
-            response = requests.get(
-                self.api_url,
-                headers=headers,
-                params=params
-            )
-            response.raise_for_status()
+            
+            try:
+                params["page"] = page
+                response = requests.get(
+                    self.api_url,
+                    headers=headers,
+                    params=params
+                )
+                response.raise_for_status()
+            except requests.exceptions.HTTPError as e:
+                self.log.error(f"HTTP error occurred while fetching commits: {str(e)}")
+                self.log.error(f"Response status code: {response.status_code}")
+                self.log.error(f"Response content: {response.text}")
+                break
             
             page_commits = response.json()
             if not page_commits:

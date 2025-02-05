@@ -37,7 +37,7 @@ with DAG(
     end_date=end_date,
     catchup=True,
     tags=['github', 'etl', 'airr_labs'],
-    max_active_runs=16
+    max_active_runs=18
 ) as dag:
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
