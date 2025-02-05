@@ -21,7 +21,7 @@ WHEN NOT MATCHED BY TARGET THEN
   INSERT (committer_id, committer_email, hour, dt, commit_count)
   VALUES (source.committer_id, source.committer_email, source.hour, source.dt, source.commit_count)
 
-WHEN NOT MATCHED BY SOURCE THEN
+WHEN NOT MATCHED BY SOURCE AND target.dt = '{{ ds }}' THEN
   UPDATE SET target.commit_count = 0;
 
 DELETE FROM `personal-project-447516.airr_labs_interview.f_commits_hourly`
