@@ -1,5 +1,6 @@
-CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.raw_commits`
+CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.staging_commits`
 (
+  commit_sha STRING,
   committer_id INT64,
   committer_name STRING,
   committer_date STRING,

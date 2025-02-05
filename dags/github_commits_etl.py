@@ -1,17 +1,12 @@
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
-from airflow.utils.dates import days_ago
 from datetime import timedelta
 
 from plugins.operators.github_to_gcs import GitHubToGCSOperator
-# from plugins.operators.duckdb_transform import DuckDBTransformOperator
 from plugins.operators.gcs_transform import GCSTransformOperator
 from plugins.operators.gcs_json_to_parquet import GCSJsonToParquetOperator
 from dags.config.pipeline_config import PipelineConfig
-import logging
-
-from airflow.operators.empty import EmptyOperator
 
 import pendulum
 
@@ -86,7 +81,7 @@ with DAG(
             f"{PipelineConfig.GOLD_PREFIX_PATH}/dt={{{{ ds }}}}/commits.parquet"
         ],
         destination_project_dataset_table=(
-            f"{PipelineConfig.PROJECT_ID}.{PipelineConfig.DATASET_ID}.{PipelineConfig.TABLE_ID}${{{{ ds_nodash }}}}"
+            f"{PipelineConfig.PROJECT_ID}.{PipelineConfig.DATASET_ID}.{PipelineConfig.STAGING_COMMITS_TABLE_NAME}${{{{ ds_nodash }}}}"
         ),
         source_format='PARQUET',
         write_disposition='WRITE_TRUNCATE',

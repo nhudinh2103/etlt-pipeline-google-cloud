@@ -13,8 +13,6 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 import io
 
-
-
 class GCS:
     """
     Helper class for GCS operations with built-in partition date handling.

@@ -7,8 +7,6 @@ from plugins.utils.time_utils import get_hive_partition_prefix_str,get_execution
 
 class GCSTransformOperator(BaseOperator):
     
-    # template_fields = ('partition_date')
-    
     """
     Operator that transforms GitHub commits data and saves to staging area.
     """
@@ -25,7 +23,6 @@ class GCSTransformOperator(BaseOperator):
         Args:
             src_path: Source GCS path (gs://bucket/path)
             dest_path: Destination GCS path for transformed data (gs://bucket/path)
-            partition_date: The partition date to process
         """
         super().__init__(**kwargs)
         self.src_path = src_path
@@ -45,13 +42,13 @@ class GCSTransformOperator(BaseOperator):
         for commit in commits_data:
             commit_date = datetime.strptime(commit['commit']['committer']['date'], '%Y-%m-%dT%H:%M:%SZ')
             transformed_commit = {
+                'commit_sha': commit['sha'],
                 'committer_id': commit['committer'].get('id') if commit.get('committer') else None,
                 'committer_name': commit['commit']['committer']['name'],
                 'committer_date': commit['commit']['committer']['date'],
-                'dt': (commit_date + timedelta(hours=7)).strftime('%Y-%m-%d'),
-                # 'committer_login': commit['committer'].get('login') if commit.get('committer') else None,
-                # 'committer_type': commit['committer'].get('type') if commit.get('committer') else None,
+                'dt': (commit_date + timedelta(hours=7)).strftime('%Y-%m-%d')
             }
+            
             transformed_data.append(transformed_commit)
         return transformed_data
 

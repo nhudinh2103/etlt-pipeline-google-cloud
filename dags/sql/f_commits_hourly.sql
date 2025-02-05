@@ -6,7 +6,7 @@ USING (
     EXTRACT(HOUR FROM PARSE_DATETIME('%Y-%m-%dT%H:%M:%SZ', committer_date) + INTERVAL 7 hour) AS hour, 
     dt,
     COUNT(1) AS commit_count
-  FROM `personal-project-447516.airr_labs_interview.raw_commits`
+  FROM `personal-project-447516.airr_labs_interview.staging_commits`
   WHERE dt = '{{ ds }}'
   GROUP BY committer_id, committer_name, hour, dt
 ) AS source
