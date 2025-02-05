@@ -51,9 +51,6 @@ with DAG(
                 'query': "{% include 'sql/init_table.sql' %}",
                 'useLegacySql': False,
             }    
-        },
-        params={
-            "dt": "{{ execution_date }}"
         }
     )
 
@@ -111,11 +108,7 @@ with DAG(
                 'query': "{% include 'sql/d_date.sql' %}",
                 'useLegacySql': False,
             }    
-        },
-        params={
-            "dt": "{{ execution_date }}"
         }
-    )
     
     # Task 6: Create time dimension
     create_d_time = BigQueryInsertJobOperator(
@@ -127,9 +120,6 @@ with DAG(
                 'query': "{% include 'sql/d_time.sql' %}",
                 'useLegacySql': False,
             }    
-        },
-        params={
-            "dt": "{{ execution_date }}"
         }
     )
 
@@ -143,9 +133,6 @@ with DAG(
                 'query': "{% include 'sql/f_commits_hourly.sql' %}",
                 'useLegacySql': False,
             }    
-        },
-        params={
-            "dt": "{{ execution_date }}"
         }
     )
 

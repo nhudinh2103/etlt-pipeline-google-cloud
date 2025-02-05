@@ -7,7 +7,7 @@ USING (
     dt,
     COUNT(1) AS commit_count
   FROM `personal-project-447516.airr_labs_interview.raw_commits`
-  WHERE dt = '{{ params.dt }}'
+  WHERE dt = '{{ execution_date }}'
   GROUP BY committer_id, committer_name, hour, dt
 ) AS source
 ON target.committer_id = source.committer_id 
@@ -29,4 +29,4 @@ WHEN NOT MATCHED BY SOURCE THEN
 
 -- Remove unnecessary records
 DELETE FROM `personal-project-447516.airr_labs_interview.f_commits_hourly`
-WHERE commit_count = 0 AND dt = '{{ params.dt }}' 
+WHERE commit_count = 0 AND dt = '{{ execution_date }}' 
