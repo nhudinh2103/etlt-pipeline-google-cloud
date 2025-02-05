@@ -4,7 +4,7 @@ from airflow.models import Variable
 @dataclass
 class Config:
     # GitHub API Configuration
-    GITHUB_API_URL = "https://api.github.com/repos/apache/airflow/commits"
+    GITHUB_API_URL = "https://api.github.com/repos/torvalds/linux/commits"
     GITHUB_TOKEN = Variable.get("GITHUB_TOKEN_SECRET")
     
     # GCS Configuration
