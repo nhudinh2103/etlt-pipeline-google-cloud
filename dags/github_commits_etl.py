@@ -1,6 +1,6 @@
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryInsertJobOperator
 from airflow.utils.dates import days_ago
 from datetime import timedelta
 
@@ -42,11 +42,16 @@ with DAG(
 ) as dag:
     
     # Task 0: Init necessary table (if not created)
-    init_table = BigQueryExecuteQueryOperator(
+    init_table = BigQueryInsertJobOperator(
         task_id='init_table',
         gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        sql='sql/init_table.sql',
-        use_legacy_sql=False
+        project_id=PipelineConfig.PROJECT_ID,
+        configuration={
+            "query": {
+                'query': "{% include 'sql/init_table.sql' %}",
+                'useLegacySql': False,
+            }    
+        }
     )
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
@@ -94,39 +99,42 @@ with DAG(
     )
     
     # Task 5: Create date dimension
-    update_d_date = BigQueryExecuteQueryOperator(
+    update_d_date = BigQueryInsertJobOperator(
         task_id='update_d_date',
         gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        sql='sql/d_date.sql',
-        use_legacy_sql=False,
-        write_disposition='WRITE_TRUNCATE',
-        create_disposition='CREATE_IF_NEEDED',
-        dataset_id=PipelineConfig.DATASET_ID,
-        project_id=PipelineConfig.PROJECT_ID
+        project_id=PipelineConfig.PROJECT_ID,
+        configuration={
+            "query": {
+                'query': "{% include 'sql/d_date.sql' %}",
+                'useLegacySql': False,
+            }    
+        }
     )
     
     # Task 6: Create time dimension
-    create_d_time = BigQueryExecuteQueryOperator(
+    create_d_time = BigQueryInsertJobOperator(
         task_id='create_d_time',
         gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        sql='sql/d_time.sql',
-        use_legacy_sql=False,
-        write_disposition='WRITE_TRUNCATE',
-        create_disposition='CREATE_IF_NEEDED',
-        dataset_id=PipelineConfig.DATASET_ID,
-        project_id=PipelineConfig.PROJECT_ID
+        project_id=PipelineConfig.PROJECT_ID,
+        configuration={
+            "query": {
+                'query': "{% include 'sql/d_time.sql' %}",
+                'useLegacySql': False,
+            }    
+        }
     )
 
     # Task 7: Create fact table
-    update_f_commits_hourly = BigQueryExecuteQueryOperator(
+    update_f_commits_hourly = BigQueryInsertJobOperator(
         task_id='update_f_commits_hourly',
         gcp_conn_id=PipelineConfig.GCS_AIRR_LAB_CONNECTION,
-        sql='sql/f_commits_hourly.sql',
-        use_legacy_sql=False,
-        write_disposition='WRITE_TRUNCATE',
-        create_disposition='CREATE_IF_NEEDED',
-        dataset_id=PipelineConfig.DATASET_ID,
-        project_id=PipelineConfig.PROJECT_ID
+        project_id=PipelineConfig.PROJECT_ID,
+        configuration={
+            "query": {
+                'query': "{% include 'sql/f_commits_hourly.sql' %}",
+                'useLegacySql': False,
+            }    
+        }
     )
 
     # Set task dependencies
