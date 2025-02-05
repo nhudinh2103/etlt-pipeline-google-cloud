@@ -6,7 +6,6 @@ from datetime import datetime, timedelta
 from plugins.gcs import GCS
 from plugins.utils.time_utils import get_execution_date_as_datetime
 import curlify
-import urllib.parse
 
 class GitHubToGCSOperator(BaseOperator):
     # template_fields = ('partition_date')
@@ -61,8 +60,8 @@ class GitHubToGCSOperator(BaseOperator):
         }
         
         # Format date for GitHub API
-        since = (date - timedelta(days=1)).replace(hour=17, minute=0, second=0).isoformat() + 'Z'
-        until = date.replace(hour=16, minute=59, second=59).isoformat() + 'Z'
+        since = (date - timedelta(days=1)).replace(hour=17, minute=0, second=0).strftime('YYYY-MM-DDTHH:MM:SS') + 'Z'
+        until = date.replace(hour=16, minute=59, second=59).strftime('YYYY-MM-DDTHH:MM:SS') + 'Z'
         
         self.log.info(f"Call Github API: {self.api_url}")
         self.log.info(f"since: {since}")
@@ -82,13 +81,10 @@ class GitHubToGCSOperator(BaseOperator):
             try:
                 params["page"] = page
                 
-                # Fix some case since and until encoded '+' char => response empty
-                encode_params_str = urllib.parse.urlencode(params, safe=':+')
-                
                 response = requests.get(
                     self.api_url,
                     headers=headers,
-                    params=encode_params_str
+                    params=params
                 )
                 
                 response.raise_for_status()
