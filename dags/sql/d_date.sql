@@ -1,13 +1,14 @@
-WITH date_check AS (
-  SELECT COUNT(1) as count
-  FROM `personal-project-447516.airr_labs_interview.raw_commits`
+MERGE INTO `personal-project-447516.airr_labs_interview.d_date` AS target
+USING (
+  SELECT CAST(FORMAT_DATE('%Y%m%d', DATE(dt)) AS INT64) as d_date_id, FORMAT_DATE('%Y-%m-%d', dt) as date_str, FORMAT_DATE('%A', dt) as weekday, dt
+  FROM `personal-project-447516.airr_labs_interview.d_date`
   WHERE dt = '{{ params.dt }}'
-)
+) AS source
+ON target.dt = source.dt
 
-DELETE FROM `personal-project-447516.airr_labs_interview.d_date`
-WHERE dt = '{{ params.dt }}'
+WHEN NOT MATCHED BY TARGET THEN
+  INSERT (d_date_id, date_str, weekday, dt)
+  VALUES (source.d_date_id, source.date_str, source.weekday, source.dt)
 
-INSERT INTO `personal-project-447516.airr_labs_interview.d_date`
-SELECT FORMAT_DATE('%Y%m%d', DATE('{{ params.dt }}')) AS INT64 as d_date_id, 
-       FORMAT_DATE('%Y-%m-%d', '{{ params.dt }}') as date_str,
-       FORMAT_DATE('%A', '{{ params.dt }}') as weekday, '{{ params.dt }}'
+WHEN NOT MATCHED BY SOURCE THEN
+  DELETE
