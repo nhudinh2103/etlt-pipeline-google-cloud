@@ -1,6 +1,6 @@
 
 DELETE FROM `personal-project-447516.airr_labs_interview.f_commits_hourly`
-WHERE dt = '{{ dt }}'
+WHERE dt = '{{ params.dt }}'
 
 INSERT INTO `personal-project-447516.airr_labs_interview.f_commits_hourly`
 SELECT 
@@ -10,5 +10,5 @@ SELECT
   dt,
   COUNT(1) AS commit_count
 FROM `personal-project-447516.airr_labs_interview.raw_commits`
-WHERE dt = '{{ dt }}'
+WHERE dt = '{{ params.dt }}'
 GROUP BY committer_id, committer_name, hour, dt

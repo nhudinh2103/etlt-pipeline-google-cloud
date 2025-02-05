@@ -52,6 +52,9 @@ with DAG(
                 'useLegacySql': False,
             }    
         }
+        params={
+            "dt": "{{ execution_time }}"
+        }
     )
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
@@ -108,6 +111,9 @@ with DAG(
                 'query': "{% include 'sql/d_date.sql' %}",
                 'useLegacySql': False,
             }    
+        },
+        params={
+            "dt": "{{ execution_time }}"
         }
     )
     
@@ -121,6 +127,9 @@ with DAG(
                 'query': "{% include 'sql/d_time.sql' %}",
                 'useLegacySql': False,
             }    
+        },
+        params={
+            "dt": "{{ execution_time }}"
         }
     )
 
