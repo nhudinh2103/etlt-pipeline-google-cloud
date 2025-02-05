@@ -2,7 +2,7 @@ MERGE INTO `personal-project-447516.airr_labs_interview.d_date` AS target
 USING (
   SELECT CAST(FORMAT_DATE('%Y%m%d', DATE(dt)) AS INT64) as d_date_id, FORMAT_DATE('%Y-%m-%d', dt) as date_str, FORMAT_DATE('%A', dt) as weekday, dt
   FROM `personal-project-447516.airr_labs_interview.d_date`
-  WHERE dt = '{{ execution_date }}'
+  WHERE dt = '{{ ds }}'
 ) AS source
 ON target.dt = source.dt
 

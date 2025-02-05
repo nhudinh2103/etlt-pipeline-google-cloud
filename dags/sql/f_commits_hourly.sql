@@ -3,11 +3,11 @@ USING (
   SELECT 
     committer_id,
     committer_name,
-    EXTRACT(HOUR FROM PARSE_DATETIME('%Y-%m-%dT%H:%M:%SZ', committer_date)) AS hour, 
+    EXTRACT(HOUR FROM PARSE_DATETIME('%Y-%m-%dT%H:%M:%SZ', committer_date) + INTERVAL 7 hour) AS hour, 
     dt,
     COUNT(1) AS commit_count
   FROM `personal-project-447516.airr_labs_interview.raw_commits`
-  WHERE dt = '{{ execution_date }}'
+  WHERE dt = '{{ ds }}'
   GROUP BY committer_id, committer_name, hour, dt
 ) AS source
 ON target.committer_id = source.committer_id 
@@ -29,4 +29,4 @@ WHEN NOT MATCHED BY SOURCE THEN
 
 -- Remove unnecessary records
 DELETE FROM `personal-project-447516.airr_labs_interview.f_commits_hourly`
-WHERE commit_count = 0 AND dt = '{{ execution_date }}' 
+WHERE commit_count = 0 AND dt = '{{ ds }}'
