@@ -53,7 +53,7 @@ with DAG(
             }    
         },
         params={
-            "dt": "{{ execution_time }}"
+            "dt": "{{ execution_date }}"
         }
     )
 
@@ -113,7 +113,7 @@ with DAG(
             }    
         },
         params={
-            "dt": "{{ execution_time }}"
+            "dt": "{{ execution_date }}"
         }
     )
     
@@ -129,7 +129,7 @@ with DAG(
             }    
         },
         params={
-            "dt": "{{ execution_time }}"
+            "dt": "{{ execution_date }}"
         }
     )
 
@@ -143,6 +143,9 @@ with DAG(
                 'query': "{% include 'sql/f_commits_hourly.sql' %}",
                 'useLegacySql': False,
             }    
+        },
+        params={
+            "dt": "{{ execution_date }}"
         }
     )
 
