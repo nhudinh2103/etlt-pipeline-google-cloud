@@ -1,24 +1,20 @@
 # Use Python 3.11 as base image (same as Cloud Composer 3)
 FROM python:3.11.8-slim
 
-# Set appropriate arg
-ARG VERSION=2.1.25
-ARG OS=linux
-ARG ARCH=amd64
-
 # Set working directory
 WORKDIR /app
 
 # Install system dependencies
-RUN apt-get update && \
+RUN apt-get update -y && \
     apt-get install -y --no-install-recommends \
-    build-essential curl \
-    && rm -rf /var/lib/apt/lists/*
+    build-essential apt-transport-https ca-certificates gnupg curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean \
+    && apt-get autoremove --purge
 
-RUN curl -fsSL "https://github.com/GoogleCloudPlatform/docker-credential-gcr/releases/download/v${VERSION}/docker-credential-gcr_${OS}_${ARCH}-${VERSION}.tar.gz" \
-    | tar xz docker-credential-gcr \
-    && chmod +x docker-credential-gcr && mv docker-credential-gcr /usr/bin/
-
+# Install gcloud commands
+RUN echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg \
+    && apt-get update -y && apt-get install google-cloud-cli -y
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
