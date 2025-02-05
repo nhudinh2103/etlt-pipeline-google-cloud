@@ -5,7 +5,7 @@ import json
 from datetime import datetime, timedelta
 from plugins.gcs import GCS
 from plugins.utils.time_utils import get_execution_date_as_datetime
-
+import curlify
 
 class GitHubToGCSOperator(BaseOperator):
     # template_fields = ('partition_date')
@@ -97,6 +97,7 @@ class GitHubToGCSOperator(BaseOperator):
             self.log.info(f"Response content: {response.text}")
             page_commits = response.json()
             if not page_commits:
+                self.log.info(f"curl: {curlify.to_curl(response.request)}")
                 break
             
             commits.extend(page_commits)
