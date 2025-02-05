@@ -14,19 +14,15 @@ ON target.committer_id = source.committer_id
    AND target.hour = source.hour
    AND target.dt = source.dt
 
--- Update the target when the record exists in both source and target
 WHEN MATCHED THEN
   UPDATE SET target.commit_count = source.commit_count
 
--- Insert the record into the target when it exists in the source but not the target
 WHEN NOT MATCHED BY TARGET THEN
   INSERT (committer_id, committer_name, hour, dt, commit_count)
   VALUES (source.committer_id, source.committer_name, source.hour, source.dt, source.commit_count)
 
--- Set commit_count = 0 for later delete when source not exist
 WHEN NOT MATCHED BY SOURCE THEN
-  UPDATE SET target.commit_count = 0
+  UPDATE SET target.commit_count = 0;
 
--- Remove unnecessary records
 DELETE FROM `personal-project-447516.airr_labs_interview.f_commits_hourly`
-WHERE commit_count = 0 AND dt = '{{ ds }}'
+WHERE commit_count = 0 AND dt = '{{ ds }}';

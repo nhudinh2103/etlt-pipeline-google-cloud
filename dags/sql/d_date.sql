@@ -12,4 +12,4 @@ WHEN NOT MATCHED BY TARGET THEN
   VALUES (source.d_date_id, source.date_str, source.weekday, source.dt)
 
 WHEN NOT MATCHED BY SOURCE THEN
-  DELETE
+  DELETE;
