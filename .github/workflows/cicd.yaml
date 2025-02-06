@@ -49,7 +49,7 @@ jobs:
             --format="get(config.dagGcsPrefix)")
           
           # Sync DAGs
-          gsutil -m rsync -r -d dags $COMPOSER_BUCKET/dags/
+          gsutil -m rsync -r -d dags/ $COMPOSER_BUCKET/dags
           
           # Sync plugins
           gsutil -m rsync -r -d plugins/ $COMPOSER_BUCKET/plugins
