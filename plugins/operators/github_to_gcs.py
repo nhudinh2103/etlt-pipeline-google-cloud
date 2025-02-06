@@ -91,9 +91,6 @@ class GitHubToGCSOperator(BaseOperator):
                 self.log.error(f"Response content: {response.text}")
                 break
             
-            self.log.info(f"response = {response}")
-            self.log.info(f"Response status code: {response.status_code}")
-            self.log.info(f"Response content: {response.text}")
             page_commits = response.json()
             
             if not page_commits:
