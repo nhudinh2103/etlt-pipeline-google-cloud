@@ -122,7 +122,7 @@ with DAG(
     # Set task dependencies
     
     # Ingest new data to staging table
-    init_table >> extract_github_raw_data_to_gcs >> transform_gcs_raw_to_staging_data >> transform_gcs_raw_to_staging_data >> update_staging_commits_table
+    init_table >> extract_github_raw_data_to_gcs >> transform_gcs_raw_to_staging_data >> convert_json_to_parquet_gcs_data >> update_staging_commits_table
     
     # Update data mart
     update_staging_commits_table >> [update_d_date, update_f_commits_hourly]
