@@ -43,6 +43,36 @@ The Airflow DAG consists of several tasks:
 - `update_d_date`: Update date dimension base on new staging data
 - `update_f_commits_hourly`: Update commits fact table with granularity hours.
 
+### ETL Pipeline Design
+
+The ETL pipeline is designed with the following key principles:
+
+#### Data Partitioning
+- Each task operates on a daily partition basis
+- Data is organized by date to enable efficient processing and management
+- Partitioning allows for:
+  - Parallel processing of different date ranges
+  - Easy reprocessing of specific time periods
+  - Efficient data organization and retrieval
+
+#### Idempotency
+- All tasks are designed to be idempotent, guaranteeing consistent results across multiple runs
+- Each rerun of a task for a specific partition will produce the same output
+- This is achieved through:
+  - Partition-based data overwriting: Each run completely replaces the data for its partition
+  - Isolated partition processing: Operations on one day's data do not affect other days
+  - Deterministic transformations: Same input always produces the same output
+
+#### Operation and Maintainability
+- **Data Backfilling Capabilities**
+  + Pros:
+    - Can rerun data independently by day if errors occur
+    - Enables selective historical data reprocessing
+  + Cons:
+    - Can consume significant resources and time when running data for extended periods (1 year or more)
+    - Requires careful resource planning for large-scale backfills
+    - May impact current production workloads during extensive backfill operations
+
 ## Data Model
 
 The project implements a star schema design optimized for analyzing GitHub commit patterns:
@@ -163,7 +193,6 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 │       ├── 2-committer-longest-streak-by-day.sql
 │       └── 3-generate-heat-map.sql
 ├── requirements.txt                 # Python dependencies
-└── setup-github-workflows.sh       # GitHub Actions setup
 ```
 
 ## Data Analysis Results
