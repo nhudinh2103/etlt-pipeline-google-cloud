@@ -38,6 +38,6 @@ CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.f_commit
   dt DATE,
   PRIMARY KEY (d_date_id) NOT ENFORCED,
   FOREIGN KEY(d_date_id) references `personal-project-447516.airr_labs_interview.d_date`(d_date_id) NOT ENFORCED,
-  FOREIGN KEY(d_time_id) references `personal-project-447516.airr_labs_interview.d_time_id`(d_time_id) NOT ENFORCED
+  FOREIGN KEY(d_time_id) references `personal-project-447516.airr_labs_interview.d_time`(d_time_id) NOT ENFORCED
 )
 PARTITION BY dt;
