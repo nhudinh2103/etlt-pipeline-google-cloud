@@ -50,8 +50,8 @@ with DAG(
     )
 
     # Task 1: Extract raw data from GitHub API to GCS (Bronze)
-    extract_raw_data = GitHubToGCSOperator(
-        task_id='extract_raw_data',
+    extract_github_raw_data_to_gcs = GitHubToGCSOperator(
+        task_id='extract_github_raw_data_to_gcs',
         github_token=Config.GITHUB_TOKEN,
         bronze_path=Config.BRONZE_PATH,
         api_url=Config.GITHUB_API_URL,
@@ -59,22 +59,22 @@ with DAG(
     )
 
     # Task 2: Transform data (normalize json to keep only necessary fields)
-    transform_json_gcs_data = GCSTransformOperator(
-        task_id='transform_json_gcs_data',
+    transform_gcs_raw_to_staging_data = GCSTransformOperator(
+        task_id='transform_gcs_raw_to_staging_data',
         src_path=Config.BRONZE_PATH,
         dest_path=Config.SILVER_PATH
     )
     
     # Task 3: Convert normalized json to parquet files
-    convert_parquet_gcs_data = GCSJsonToParquetOperator(
-        task_id='convert_parquet_gcs_data',
+    convert_json_to_parquet_gcs_data = GCSJsonToParquetOperator(
+        task_id='convert_json_to_parquet_gcs_data',
         src_path=Config.SILVER_PATH,
         dest_path=Config.GOLD_PATH
     )
     
     # Task 4: Load data to warehouse
-    load_data_to_warehouse = GCSToBigQueryOperator(
-        task_id='load_data_to_warehouse',
+    update_staging_commits_table = GCSToBigQueryOperator(
+        task_id='update_staging_commits_table',
         gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
         bucket=Config.GCS_BUCKET,
         source_objects=[
@@ -93,7 +93,7 @@ with DAG(
         }
     )
     
-    # Task 5: Create date dimension
+    # Task 5: Update record in date dimension
     update_d_date = BigQueryInsertJobOperator(
         task_id='update_d_date',
         gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
@@ -106,7 +106,7 @@ with DAG(
         }
     )
 
-    # Task 7: Create fact table
+    # Task 7: Update record in fact
     update_f_commits_hourly = BigQueryInsertJobOperator(
         task_id='update_f_commits_hourly',
         gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
@@ -122,7 +122,7 @@ with DAG(
     # Set task dependencies
     
     # Ingest new data to staging table
-    init_table >> extract_raw_data >> transform_json_gcs_data >> convert_parquet_gcs_data >> load_data_to_warehouse
+    init_table >> extract_github_raw_data_to_gcs >> transform_gcs_raw_to_staging_data >> transform_gcs_raw_to_staging_data >> update_staging_commits_table
     
     # Update data mart
-    load_data_to_warehouse >> [update_d_date, update_f_commits_hourly]
+    update_staging_commits_table >> [update_d_date, update_f_commits_hourly]
