@@ -100,20 +100,20 @@ with DAG(
         project_id=Config.PROJECT_ID,
         configuration={
             "query": {
-                'query': "{% include 'sql/d_date.sql' %}",
+                'query': "{% include 'sql/merge_d_date.sql' %}",
                 'useLegacySql': False,
             }    
         }
     )
 
-    # Task 7: Update record in fact
+    # Task 6: Update record in fact
     update_f_commits_hourly = BigQueryInsertJobOperator(
         task_id='update_f_commits_hourly',
         gcp_conn_id=Config.GCS_AIRR_LAB_CONNECTION,
         project_id=Config.PROJECT_ID,
         configuration={
             "query": {
-                'query': "{% include 'sql/f_commits_hourly.sql' %}",
+                'query': "{% include 'sql/merge_f_commits_hourly.sql' %}",
                 'useLegacySql': False,
             }    
         }

@@ -5,16 +5,20 @@ CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.staging_
   committer_name STRING,
   committer_email STRING,
   committer_date STRING,
-  dt DATE
+  dt DATE,
+  PRIMARY KEY (commit_sha) NOT ENFORCED
 )
 PARTITION BY dt;
+
 
 CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.d_date`
 (
   d_date_id INT64,
   date_str STRING,
   weekday STRING,
-  dt DATE
+  weekday_number INT64,
+  dt DATE,
+  PRIMARY KEY (d_date_id) NOT ENFORCED
 );
 
 CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.d_time` AS
@@ -23,6 +27,7 @@ SELECT hour_value as d_time_id, FORMAT('%02d-%02d',
     IF(hour_value = 0, 0, CAST(((hour_value - 1) / 3) * 3 + 3 AS INT64))
   ) AS hour_range_str
 FROM UNNEST(GENERATE_ARRAY(0, 23)) AS hour_value;
+ALTER TABLE  `personal-project-447516.airr_labs_interview.d_time` ADD PRIMARY KEY (d_time_id) NOT ENFORCED;
 
 CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.f_commits_hourly`
 (
@@ -31,6 +36,9 @@ CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.f_commit
   committer_id INT64,
   committer_email STRING,
   commit_count INT64,
-  dt DATE
+  dt DATE,
+  PRIMARY KEY (d_date_id) NOT ENFORCED,
+  FOREIGN KEY(d_date_id) references `personal-project-447516.airr_labs_interview.d_date`(d_date_id) NOT ENFORCED,
+  FOREIGN KEY(d_time_id) references `personal-project-447516.airr_labs_interview.d_time_id`(d_time_id) NOT ENFORCED
 )
 PARTITION BY dt;
