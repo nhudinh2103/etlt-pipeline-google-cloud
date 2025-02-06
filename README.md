@@ -173,8 +173,6 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 ├── docker-build/                    # Docker build configurations
 │   ├── Dockerfile
 │   ├── build.sh
-│   ├── dockerconfig.json
-│   ├── push-gar-gcp.sh
 │   └── push-ghcr-github.sh
 ├── plugins/
 │   ├── gcs.py                       # GCS utilities
@@ -201,6 +199,8 @@ The following analysis was performed on commit data collected from the Linux ker
 
 ### Top 5 Committers by Commit Count
 
+[View SQL Query](sql/query/1-top-5-committers.sql)
+
 Query results show the most active contributors based on total number of commits:
 
 1. kuba@kernel.org (2,792 commits)
@@ -213,12 +213,16 @@ Query results show the most active contributors based on total number of commits
 
 ### Longest Commit Streak
 
+[View SQL Query](sql/query/2-committer-longest-streak-by-day.sql)
+
 Analysis of continuous daily commit patterns reveals:
 - Linus Torvalds (torvalds@linux-foundation.org) holds the longest streak at 35 consecutive days of commits
 
 ![Longest Commit Streak Query](images/longest-commit-streak.png)
 
 ### Commit Activity Heatmap
+
+[View SQL Query](sql/query/3-generate-heat-map.sql)
 
 The heatmap analysis shows commit patterns across days of the week and time blocks (24-hour divided into 3-hour ranges):
 
