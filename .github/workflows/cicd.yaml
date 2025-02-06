@@ -52,7 +52,7 @@ jobs:
           gsutil -m rsync -r -d dags/ $COMPOSER_BUCKET/dags
 
           # Sync SQL
-          gsutil -m rsync -r -d sql/ $COMPOSER_BUCKET/sql
+          gsutil -m rsync -r -d sql/ $COMPOSER_BUCKET/dags/sql
           
           # Sync plugins
           gsutil -m rsync -r -d plugins/ $COMPOSER_BUCKET/plugins
