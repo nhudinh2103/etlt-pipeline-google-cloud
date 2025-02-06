@@ -1,18 +1,19 @@
 MERGE INTO `personal-project-447516.airr_labs_interview.f_commits_hourly` AS target
 USING (
-  SELECT 
+  SELECT
+    CAST(FORMAT_DATE('%Y%m%d', dt) AS INT64) AS d_date_id,
+    EXTRACT(HOUR FROM PARSE_DATETIME('%Y-%m-%dT%H:%M:%SZ', committer_date) + INTERVAL 7 hour) AS d_time_id, 
     committer_id,
     committer_email,
-    EXTRACT(HOUR FROM PARSE_DATETIME('%Y-%m-%dT%H:%M:%SZ', committer_date) + INTERVAL 7 hour) AS hour, 
     dt,
     COUNT(1) AS commit_count
   FROM `personal-project-447516.airr_labs_interview.staging_commits`
   WHERE dt = '{{ ds }}'
-  GROUP BY committer_id, committer_email, hour, dt
+  GROUP BY d_date_id, d_time_id, committer_id, committer_email, dt
 ) AS source
 ON target.committer_email = source.committer_email
-   AND target.hour = source.hour
-   AND target.dt = source.dt
+   AND target.d_time_id = source.d_time_id
+   AND target.d_date_id = source.d_date_id
 
 WHEN MATCHED THEN
   UPDATE SET target.commit_count = source.commit_count

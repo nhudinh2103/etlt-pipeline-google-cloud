@@ -26,10 +26,11 @@ FROM UNNEST(GENERATE_ARRAY(0, 23)) AS hour_value;
 
 CREATE TABLE IF NOT EXISTS `personal-project-447516.airr_labs_interview.f_commits_hourly`
 (
+  d_date_id INT64,
+  d_time_id INT64,
   committer_id INT64,
   committer_email STRING,
   commit_count INT64,
-  hour INT64,
   dt DATE
 )
 PARTITION BY dt;
