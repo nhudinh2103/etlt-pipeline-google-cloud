@@ -47,14 +47,13 @@ jobs:
           COMPOSER_BUCKET=$(gcloud composer environments describe ${{ secrets.AIRR_LABS_COMPOSER_ENV_NAME }} \
             --location=${{ secrets.AIRR_LABS_COMPOSER_LOCATION }} \
             --format="get(config.dagGcsPrefix)")
+
+          mv sql ../
           
           # Sync DAGs
           gsutil -m rsync -r -d dags/ $COMPOSER_BUCKET/dags
 
           # Sync SQL
-          gsutil -m rsync -r -d sql/ $COMPOSER_BUCKET/sql
-          
-          # Sync plugins
-          gsutil -m rsync -r -d plugins/ $COMPOSER_BUCKET/plugins
+          gsutil -m rsync -r -d ../sql/ $COMPOSER_BUCKET/sql
           
           echo "Deployment completed successfully"
