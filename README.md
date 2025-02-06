@@ -132,10 +132,6 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
      - If tests pass, authenticates with GCP
      - Syncs DAGs, SQL, and plugins to Cloud Composer's GCS bucket
 
-## Development
-
-> **Note**: Local Airflow development environment setup is work in progress. Currently using Cloud Composer - if you're interested in accessing the environment, please contact me and provide your Gmail address for IAM grant in GCP.
-
 ## Project Structure
 
 ```
@@ -147,6 +143,7 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 ├── docker-build/                    # Docker build configurations
 │   ├── Dockerfile
 │   ├── build.sh
+│   ├── dockerconfig.json
 │   ├── push-gar-gcp.sh
 │   └── push-ghcr-github.sh
 ├── plugins/
@@ -158,12 +155,53 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 │   └── utils/
 │       └── time_utils.py           # Time utility functions
 ├── sql/
-│   ├── d_date.sql                  # Date dimension
-│   ├── f_commits_hourly.sql        # Commits fact table
 │   ├── init_table.sql              # Table initialization
+│   ├── merge_d_date.sql            # Date dimension merge
+│   ├── merge_f_commits_hourly.sql  # Commits fact table merge
 │   └── query/                      # Analysis queries
 │       ├── 1-top-5-committers.sql
 │       ├── 2-committer-longest-streak-by-day.sql
 │       └── 3-generate-heat-map.sql
 ├── requirements.txt                 # Python dependencies
 └── setup-github-workflows.sh       # GitHub Actions setup
+```
+
+## Data Analysis Results
+
+The following analysis was performed on commit data collected from the Linux kernel repository (https://github.com/torvalds/linux):
+
+### Top 5 Committers by Commit Count
+
+Query results show the most active contributors based on total number of commits:
+
+1. kuba@kernel.org (2,792 commits)
+2. akpm@linux-foundation.org (1,570 commits)
+3. gregkh@linuxfoundation.org (1,481 commits)
+4. torvalds@linux-foundation.org (1,444 commits)
+5. alexander.deucher@amd.com (1,318 commits)
+
+![Top 5 Committers Query](images/top-5-committers.png)
+
+### Longest Commit Streak
+
+Analysis of continuous daily commit patterns reveals:
+- Linus Torvalds (torvalds@linux-foundation.org) holds the longest streak at 35 consecutive days of commits
+
+![Longest Commit Streak Query](images/longest-commit-streak.png)
+
+### Commit Activity Heatmap
+
+The heatmap analysis shows commit patterns across days of the week and time blocks (24-hour divided into 3-hour ranges):
+
+Key insights:
+- Highest activity: Tuesday-Thursday during 10-12 time block
+- Weekend activity is notably lower, especially on Sundays
+- Early morning hours (01-03) show consistent but lower activity
+- Peak hours vary by day but generally fall within working hours
+- Saturday shows interesting spikes in early morning (01-03) and late night (22-00)
+
+![Commit Activity Heatmap Query](images/commit-heatmap.png)
+
+## Development
+
+> **Note**: Local Airflow development environment setup is work in progress. Currently using Cloud Composer - if you're interested in accessing the environment, please contact me and provide your Gmail address for IAM grant in GCP.
