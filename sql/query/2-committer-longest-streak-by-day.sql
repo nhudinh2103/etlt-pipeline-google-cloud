@@ -13,7 +13,6 @@ WITH committer_agg_by_day AS
       (
         SELECT DISTINCT committer_email
          FROM `personal-project-447516.airr_labs_interview.f_commits_hourly` f
-         WHERE committer_email = 'torvalds@linux-foundation.org'
       ),
 
      streak AS
