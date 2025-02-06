@@ -166,30 +166,31 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 
 ```
 .
-├── dags/
-│   ├── dag_github_commits_etl.py    # Main DAG file
-│   └── config/
-│       └── config.py                # Configuration
+├── src/
+│   ├── dags/
+│   │   ├── dag_github_commits_etl.py    # Main DAG file
+│   │   └── config/
+│   │       └── config.py                # Configuration
+│   ├── plugins/
+│   │   ├── gcs.py                       # GCS utilities
+│   │   ├── operators/
+│   │   │   ├── github_to_gcs.py        # Bronze layer operator
+│   │   │   ├── gcs_json_to_parquet.py  # Parquet conversion operator
+│   │   │   └── gcs_transform.py        # GCS transformation operator
+│   │   └── utils/
+│   │       └── time_utils.py           # Time utility functions
+│   └── sql/
+│       ├── init_table.sql              # Table initialization
+│       ├── merge_d_date.sql            # Date dimension merge
+│       ├── merge_f_commits_hourly.sql  # Commits fact table merge
+│       └── query/                      # Analysis queries
+│           ├── 1-top-5-committers.sql
+│           ├── 2-committer-longest-streak-by-day.sql
+│           └── 3-generate-heat-map.sql
 ├── docker-build/                    # Docker build configurations
 │   ├── Dockerfile
 │   ├── build.sh
 │   └── push-ghcr-github.sh
-├── plugins/
-│   ├── gcs.py                       # GCS utilities
-│   ├── operators/
-│   │   ├── github_to_gcs.py        # Bronze layer operator
-│   │   ├── gcs_json_to_parquet.py  # Parquet conversion operator
-│   │   └── gcs_transform.py        # GCS transformation operator
-│   └── utils/
-│       └── time_utils.py           # Time utility functions
-├── sql/
-│   ├── init_table.sql              # Table initialization
-│   ├── merge_d_date.sql            # Date dimension merge
-│   ├── merge_f_commits_hourly.sql  # Commits fact table merge
-│   └── query/                      # Analysis queries
-│       ├── 1-top-5-committers.sql
-│       ├── 2-committer-longest-streak-by-day.sql
-│       └── 3-generate-heat-map.sql
 ├── requirements.txt                 # Python dependencies
 ```
 
@@ -199,7 +200,7 @@ The following analysis was performed on commit data collected from the Linux ker
 
 ### Top 5 Committers by Commit Count
 
-[View SQL Query](sql/query/1-top-5-committers.sql)
+[View SQL Query](src/sql/query/1-top-5-committers.sql)
 
 Query results show the most active contributors based on total number of commits:
 
@@ -213,7 +214,7 @@ Query results show the most active contributors based on total number of commits
 
 ### Longest Commit Streak
 
-[View SQL Query](sql/query/2-committer-longest-streak-by-day.sql)
+[View SQL Query](src/sql/query/2-committer-longest-streak-by-day.sql)
 
 Analysis of continuous daily commit patterns reveals:
 - Linus Torvalds (torvalds@linux-foundation.org) holds the longest streak at 35 consecutive days of commits
@@ -222,7 +223,7 @@ Analysis of continuous daily commit patterns reveals:
 
 ### Commit Activity Heatmap
 
-[View SQL Query](sql/query/3-generate-heat-map.sql)
+[View SQL Query](src/sql/query/3-generate-heat-map.sql)
 
 The heatmap analysis shows commit patterns across days of the week and time blocks (24-hour divided into 3-hour ranges):
 

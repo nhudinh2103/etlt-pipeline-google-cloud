@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v2
     #   - name: Run tests in container
     #     run: |
-    #       python -m pytest dags/ plugins/
+    #       python -m pytest src/dags/ src/plugins/
 
   deploy:
     needs: test
@@ -49,12 +49,12 @@ jobs:
             --format="get(config.dagGcsPrefix)")
           
           # Sync DAGs
-          gsutil -m rsync -r -d dags/ $COMPOSER_BUCKET/dags
+          gsutil -m rsync -r -d src/dags/ $COMPOSER_BUCKET/dags
 
           # Sync SQL
-          gsutil -m rsync -r -d sql/ $COMPOSER_BUCKET/dags/sql
+          gsutil -m rsync -r -d src/sql/ $COMPOSER_BUCKET/dags/sql
           
           # Sync plugins
-          gsutil -m rsync -r -d plugins/ $COMPOSER_BUCKET/plugins
+          gsutil -m rsync -r -d src/plugins/ $COMPOSER_BUCKET/plugins
           
           echo "Deployment completed successfully"
