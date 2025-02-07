@@ -157,8 +157,8 @@ The project implements a star schema design optimized for analyzing GitHub commi
 - Key fields:
   - `commit_sha`: Unique identifier for each commit
   - `committer_id`, `committer_name`, `committer_email`: Committer details
-  - `committer_date`: Timestamp of the commit
-  - `dt`: Partition date
+  - `committer_date`: Raw string timestamp UTC (based on GitHub API response)
+  - `dt`: Partition date (converted to GMT+7 for Vietnamese timezone)
 
 ### 📊 Dimension Tables
 
@@ -185,7 +185,7 @@ The project implements a star schema design optimized for analyzing GitHub commi
 - Uses `committer_email` as a reliable identifier
   > **Why email instead of ID?** GitHub API may return null values for `committer_id` in repository commits. Email addresses provide a more reliable way to track commit activity.
 - Key metrics:
-  - Time dimensions: Links to both date and time for flexible analysis
+  - All date and time related columns are in GMT+7 timezone (for Vietnamese users)
   - `commit_count`: Number of commits in the time period
   - Partitioned by date (dt=YYYY-MM-DD) for optimal query performance
 
