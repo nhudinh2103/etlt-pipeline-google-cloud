@@ -1,18 +1,49 @@
 # GitHub API ETLT Pipeline
 
+## Table of Contents
+- [Overview](#overview)
+- [Architecture](#architecture)
+  - [Medallion Architecture](#medallion-architecture)
+  - [Pipeline Architecture](#pipeline-architecture)
+  - [Deployment Architecture](#deployment-architecture)
+  - [Pipeline Components](#pipeline-components)
+  - [Pipeline Design](#pipeline-design)
+- [Data Model](#data-model)
+  - [Staging Layer](#-staging-layer)
+  - [Dimension Tables](#-dimension-tables)
+  - [Fact Table](#-fact-table)
+- [Analysis Results](#data-analysis-results)
+  - [Top 5 Committers](#query-1-top-5-committers-by-commit-count)
+  - [Longest Commit Streak](#query-2-committer-with-longest-commit-streak)
+  - [Commit Heatmap](#query-3-commit-activity-heatmap)
+- [Setup & Development](#setup)
+  - [Project Structure](#project-structure)
+  - [CI/CD](#cicd)
+
+## Overview
+<details open>
+<summary>Click to expand</summary>
+
 An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Transform), a variant of the traditional ETL pattern that adds a second transform phase after loading. This pipeline extracts commit data from the Apache Airflow GitHub repository and loads it into BigQuery using a medallion architecture.
+</details>
 
 ## Architecture
 
 ### Medallion Architecture
+<details open>
+<summary>Click to expand</summary>
 
 The project organizes data into different layers of refinement, with all layers partitioned by day using hive format (dt=YYYY-MM-DD):
 
 - **Bronze Layer**: Raw data from GitHub API stored as JSON files in GCS
 - **Silver Layer**: Transformed data stored as JSON files in GCS
 - **Gold Layer**: Final data stored as Parquet files in GCS before loading to BigQuery
+</details>
 
 ### Pipeline Architecture
+<details open>
+<summary>Click to expand</summary>
+
 ![Pipeline Architecture](images/pipeline-architecture.png)
 
 The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern within Google Cloud Platform (GCP):
@@ -25,8 +56,12 @@ The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern with
 4. **Transform**: Additional transformations using BigQueryInsertJob to create:
    - Dimension tables (e.g., date dimension)
    - Fact tables (e.g., hourly commits)
+</details>
 
-#### Deployment Architecture
+### Deployment Architecture
+<details open>
+<summary>Click to expand</summary>
+
 ![Deployment Architecture](images/deployment-architecture.png)
 
 The deployment process follows a CI/CD approach:
@@ -34,8 +69,12 @@ The deployment process follows a CI/CD approach:
 2. GitHub Actions triggers CI/CD job on new commits
 3. On successful tests, code is deployed to GCS bucket
 4. Cloud Composer (Airflow) automatically syncs code from GCS bucket
+</details>
 
 ### Pipeline Components
+<details open>
+<summary>Click to expand</summary>
+
 ![ETLT Pipeline](images/etl-pipeline.png)
 
 #### Airflow DAG
@@ -61,8 +100,11 @@ The Airflow DAG implements the ETLT pattern through these tasks:
 4. **Second Transform**:
    - `update_d_date`: Create/update date dimension
    - `update_f_commits_hourly`: Create/update hourly commits fact table
+</details>
 
 ### Pipeline Design
+<details open>
+<summary>Click to expand</summary>
 
 The pipeline is designed with the following key principles:
 
@@ -92,8 +134,11 @@ The pipeline is designed with the following key principles:
     - Can consume significant resources and time when running data for extended periods (1 year or more)
     - Requires careful resource planning for large-scale backfills
     - May impact current production workloads during extensive backfill operations
+</details>
 
 ## Data Model
+<details open>
+<summary>Click to expand</summary>
 
 The project implements a star schema design optimized for analyzing GitHub commit patterns:
 
@@ -143,14 +188,20 @@ The project implements a star schema design optimized for analyzing GitHub commi
 - 📅 Date-based partitioning across tables
 - 🔗 Maintained referential integrity through foreign keys
 - 📧 Reliable committer tracking using email addresses
+</details>
 
 ## Schedule
+<details open>
+<summary>Click to expand</summary>
 
 - Runs daily
 - Processes data for the previous day
 - Idempotent execution
+</details>
 
 ## Setup
+<details open>
+<summary>Click to expand</summary>
 
 1. Set up Cloud Composer environment
 2. Configure Airflow variables:
@@ -162,8 +213,11 @@ The project implements a star schema design optimized for analyzing GitHub commi
    - GCS bucket
    - BigQuery project and dataset
    - Other configurations
+</details>
 
 ## CI/CD
+<details open>
+<summary>Click to expand</summary>
 
 The pipeline uses GitHub Actions for continuous integration and deployment:
 
@@ -181,8 +235,11 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
      - Runs tests in custom Docker container
      - If tests pass, authenticates with GCP
      - Syncs DAGs, SQL, and plugins to Cloud Composer's GCS bucket
+</details>
 
 ## Project Structure
+<details open>
+<summary>Click to expand</summary>
 
 ```
 .
@@ -213,8 +270,11 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 │   └── push-ghcr-github.sh
 ├── requirements.txt                 # Python dependencies
 ```
+</details>
 
 ## Data Analysis Results
+<details open>
+<summary>Click to expand</summary>
 
 The following analysis was performed on commit data collected from the Linux kernel repository (https://github.com/torvalds/linux) over a 6-month period from August 2024 to February 2025.
 
@@ -256,7 +316,11 @@ The visualization below shows the commit patterns across:
 - Color intensity indicates higher commit activity in those time periods
 
 ![Commit Activity Heatmap Query](images/commit-heatmap.png)
+</details>
 
 ## Development
+<details open>
+<summary>Click to expand</summary>
 
 > **Note**: Local Airflow development environment setup is work in progress. Currently using Cloud Composer - if you're interested in accessing the environment, please contact me and provide your Gmail address for IAM grant in GCP.
+</details>
