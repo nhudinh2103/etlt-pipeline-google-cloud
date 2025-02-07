@@ -319,7 +319,6 @@ This query generates a heatmap showing the distribution of commits by day of the
 The visualization below shows the commit patterns across:
 - Days of the week (Monday through Sunday)
 - Time blocks (24-hour day divided into 3-hour ranges)
-- Color intensity indicates higher commit activity in those time periods
 
 ![Commit Activity Heatmap Query](images/commit-heatmap.png)
 </details>
