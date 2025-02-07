@@ -28,9 +28,12 @@ class GCSJsonToParquetOperator(BaseOperator):
         self.dest_path = dest_path
         
 
-    def execute(self, context):
+    def execute(self, context) -> None:
         """
         Execute the operator to convert JSON files to parquet format.
+        
+        Args:
+            context: Airflow context containing execution_date
         """
         
         partition_date = context['execution_date']

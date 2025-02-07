@@ -53,9 +53,12 @@ class GCSTransformOperator(BaseOperator):
             transformed_data.append(transformed_commit)
         return transformed_data
 
-    def execute(self, context):
+    def execute(self, context) -> None:
         """
         Execute the operator to transform GitHub commits data and save to staging.
+        
+        Args:
+            context: Airflow context containing execution_date
         """
         
         partition_date = context['execution_date']

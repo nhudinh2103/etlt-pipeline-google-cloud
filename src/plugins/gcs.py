@@ -23,7 +23,9 @@ class GCS:
         Initialize GCSHelper with partition date.
         
         Args:
-            partition_date (datetime): The partition date to use for operations
+            partition_date: The partition date to use for operations
+            gcp_conn_id: GCP connection ID for authentication
+            log: Logger instance for logging operations
         """
         self.partition_date = partition_date
         self.hook_args = {'gcp_conn_id': gcp_conn_id}
@@ -35,11 +37,13 @@ class GCS:
         Process JSON files from bronze layer and convert to parquet.
         
         Args:
-            gcs_bucket (str): The GCS bucket name
-            prefix (str): The prefix path in the bucket
+            src_gcs_bucket: Source GCS bucket name
+            src_prefix: Source prefix path in the bucket
+            dest_gcs_bucket: Destination GCS bucket name
+            dest_prefix: Destination prefix path in the bucket
             
         Returns:
-            List[Dict[str, str]]: List of processed files with their source and destination paths
+            List of processed files with their source and destination paths
         """
         # Format partition path using hive format
         partition_path = get_hive_partition_prefix_str(self.partition_date)
@@ -75,15 +79,16 @@ class GCS:
         
         return processed_files
     
-    def __download_json_upload_parquet(self, src_gcs_bucket: str, src_blob: str, dest_gcs_bucket, dest_blob: str, tmp_dir: str) -> None:
+    def __download_json_upload_parquet(self, src_gcs_bucket: str, src_blob: str, dest_gcs_bucket: str, dest_blob: str, tmp_dir: str) -> None:
         """
         Download JSON file from GCS, convert to parquet, and upload back to GCS.
         
         Args:
-            gcs_bucket (str): The GCS bucket name
-            src_blob (str): Source blob path (JSON file)
-            dest_blob (str): Destination blob path (Parquet file)
-            tmp_dir (str): Directory to store temporary files
+            src_gcs_bucket: Source GCS bucket name
+            src_blob: Source blob path (JSON file)
+            dest_gcs_bucket: Destination GCS bucket name
+            dest_blob: Destination blob path (Parquet file)
+            tmp_dir: Directory to store temporary files
         """
         # Generate temporary file paths with random suffixes
         temp_json = tempfile.NamedTemporaryFile(suffix='.json', dir=tmp_dir)
@@ -116,13 +121,13 @@ class GCS:
             mime_type='application/octet-stream'
         )
 
-    def __convert_json_to_parquet(self, json_input_path, parquet_output_path):
+    def __convert_json_to_parquet(self, json_input_path: str, parquet_output_path: str) -> None:
         """
         Convert JSON content to parquet format.
         
         Args:
-            json_input_content: JSON content to convert
-            parquet_output_path (str): Path to save parquet file
+            json_input_path: Path to input JSON file
+            parquet_output_path: Path to save parquet file
         """
         if self.log:
             self.log.info(f"json_input_path = {json_input_path}") 
@@ -140,17 +145,18 @@ class GCS:
             table = pa.Table.from_pandas(df)
             pq.write_table(table, parquet_output_path)
     
-    def upload_to_gcs(self, gcs_bucket: str, prefix: str, blob_name, contents) -> str:
+    def upload_to_gcs(self, gcs_bucket: str, prefix: str, blob_name: str, contents: Any) -> str:
         """
         Upload JSON data to Google Cloud Storage.
         
         Args:
-            gcs_bucket (str): The GCS bucket name
-            blob_name (str): The path and name of the blob in GCS
-            contents: The data to upload
+            gcs_bucket: The GCS bucket name
+            prefix: The prefix path in the bucket
+            blob_name: The name of the file to upload
+            contents: The data to upload (will be JSON serialized)
             
         Returns:
-            str: Full GCS path of the uploaded file
+            Full GCS path of the uploaded file
         """
         
         prefix = f"{prefix}/{get_hive_partition_prefix_str(self.partition_date)}/{blob_name}"
