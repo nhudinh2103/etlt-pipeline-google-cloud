@@ -1,26 +1,30 @@
-# GitHub API ETL Pipeline
+# GitHub API ETLT Pipeline
 
-An Apache Airflow ETL pipeline that extracts commit data from the Apache Airflow GitHub repository and loads it into BigQuery using a medallion architecture.
-
-## Medallion Architecture
-
-The project follows the medallion architecture pattern, which organizes data into different layers of refinement:
-
-- **Bronze Layer**: Raw data from GitHub API stored as JSON files in GCS
-- **Staging Layer**: Transformed data stored as JSON files in GCS
-- **Gold Layer**: Final data stored in BigQuery with daily partitioning in Parquet format
+An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Transform), a variant of the traditional ETL pattern that adds a second transform phase after loading. This pipeline extracts commit data from the Apache Airflow GitHub repository and loads it into BigQuery using a medallion architecture.
 
 ## Architecture
 
-### High Level Overview
+### Medallion Architecture
 
-#### Pipeline Architecture
+The project organizes data into different layers of refinement, with all layers partitioned by day using hive format (dt=YYYY-MM-DD):
+
+- **Bronze Layer**: Raw data from GitHub API stored as JSON files in GCS
+- **Silver Layer**: Transformed data stored as JSON files in GCS
+- **Gold Layer**: Final data stored as Parquet files in GCS before loading to BigQuery
+
+### Pipeline Architecture
 ![Pipeline Architecture](images/pipeline-architecture.png)
 
-The pipeline architecture illustrates the data flow within Google Cloud Platform (GCP):
-1. Extract raw data by calling GitHub API
-2. Store bronze, staging, and gold data in Google Cloud Storage (GCS)
-3. Load data to BigQuery using BigQueryInsertJob for analysis
+The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern within Google Cloud Platform (GCP):
+
+1. **Extract**: Raw data from GitHub API to Bronze layer
+2. **Transform**: 
+   - Normalize data and store in Silver layer
+   - Convert to Parquet format in Gold layer
+3. **Load**: Load Parquet data to BigQuery staging tables
+4. **Transform**: Additional transformations using BigQueryInsertJob to create:
+   - Dimension tables (e.g., date dimension)
+   - Fact tables (e.g., hourly commits)
 
 #### Deployment Architecture
 ![Deployment Architecture](images/deployment-architecture.png)
@@ -31,29 +35,45 @@ The deployment process follows a CI/CD approach:
 3. On successful tests, code is deployed to GCS bucket
 4. Cloud Composer (Airflow) automatically syncs code from GCS bucket
 
-### ETL Pipeline Components
-![ETL Pipeline](images/etl-pipeline.png)
+### Pipeline Components
+![ETLT Pipeline](images/etl-pipeline.png)
 
-The Airflow DAG consists of several tasks:
-- `init_table`: Initialize required tables
-- `extract_github_raw_data_to_gcs`: Extract data from GitHub API
-- `transform_gcs_raw_to_staging_data`: Transform raw data
-- `convert_json_to_parquet_gcs_data`: Convert JSON to Parquet format
-- `update_staging_commits_table`: Update staging tables
-- `update_d_date`: Update date dimension base on new staging data
-- `update_f_commits_hourly`: Update commits fact table with granularity hours.
+#### Airflow DAG
+![Airflow DAG](images/airflow-dag.png)
 
-### ETL Pipeline Design
+Tasks are organized to process data daily, with each execution handling its specific partition (dt=YYYY-MM-DD).
 
-The ETL pipeline is designed with the following key principles:
+Tasks can run independently, with ability to run parallel for backfill when needed.
+
+The Airflow DAG implements the ETLT pattern through these tasks:
+
+1. **Extract**:
+   - `init_table`: Initialize required tables
+   - `extract_github_raw_data_to_gcs`: Extract data from GitHub API to Bronze layer
+
+2. **First Transform**:
+   - `transform_gcs_raw_to_staging_data`: Transform raw data to Silver layer
+   - `convert_json_to_parquet_gcs_data`: Convert to Parquet format in Gold layer
+
+3. **Load**:
+   - `update_staging_commits_table`: Load data to BigQuery staging tables
+
+4. **Second Transform**:
+   - `update_d_date`: Create/update date dimension
+   - `update_f_commits_hourly`: Create/update hourly commits fact table
+
+### Pipeline Design
+
+The pipeline is designed with the following key principles:
 
 #### Data Partitioning
+- All data layers (Bronze, Silver, Gold) use hive-style partitioning by date (dt=YYYY-MM-DD)
 - Each task operates on a daily partition basis
-- Data is organized by date to enable efficient processing and management
-- Partitioning allows for:
+- This partitioning strategy enables:
   - Parallel processing of different date ranges
   - Easy reprocessing of specific time periods
   - Efficient data organization and retrieval
+  - Consistent partition format across all layers
 
 #### Idempotency
 - All tasks are designed to be idempotent, guaranteeing consistent results across multiple runs
@@ -82,7 +102,7 @@ The project implements a star schema design optimized for analyzing GitHub commi
 ### 🔄 Staging Layer
 `staging_commits`
 - Serves as the intermediate storage for transformed GitHub commit data
-- Partitioned by date for efficient data loading and historical analysis
+- Partitioned by date (dt=YYYY-MM-DD) for efficient data loading and historical analysis
 - Key fields:
   - `commit_sha`: Unique identifier for each commit
   - `committer_id`, `committer_name`, `committer_email`: Committer details
@@ -116,7 +136,7 @@ The project implements a star schema design optimized for analyzing GitHub commi
 - Key metrics:
   - Time dimensions: Links to both date and time for flexible analysis
   - `commit_count`: Number of commits in the time period
-  - Partitioned by date for optimal query performance
+  - Partitioned by date (dt=YYYY-MM-DD) for optimal query performance
 
 ### Key Features
 - ✨ Optimized star schema for commit analysis
@@ -196,13 +216,13 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
 
 ## Data Analysis Results
 
-The following analysis was performed on commit data collected from the Linux kernel repository (https://github.com/torvalds/linux):
+The following analysis was performed on commit data collected from the Linux kernel repository (https://github.com/torvalds/linux) over a 6-month period from August 2024 to February 2025.
 
-### Top 5 Committers by Commit Count
+The analysis addresses three specific requirements using SQL queries:
 
-[View SQL Query](src/sql/query/1-top-5-committers.sql)
+### Query 1: Top 5 Committers by Commit Count
 
-Query results show the most active contributors based on total number of commits:
+This query determines the top 5 committers ranked by count of commits and their number of commits:
 
 1. kuba@kernel.org (2,792 commits)
 2. akpm@linux-foundation.org (1,570 commits)
@@ -210,29 +230,30 @@ Query results show the most active contributors based on total number of commits
 4. torvalds@linux-foundation.org (1,444 commits)
 5. alexander.deucher@amd.com (1,318 commits)
 
+[View SQL Query](src/sql/query/1-top-5-committers.sql)
+
 ![Top 5 Committers Query](images/top-5-committers.png)
 
-### Longest Commit Streak
+### Query 2: Committer with Longest Commit Streak
+
+This query identifies the committer with the longest consecutive days of commits:
+
+Linus Torvalds (torvalds@linux-foundation.org) achieved the longest streak with 35 consecutive days of commits.
 
 [View SQL Query](src/sql/query/2-committer-longest-streak-by-day.sql)
 
-Analysis of continuous daily commit patterns reveals:
-- Linus Torvalds (torvalds@linux-foundation.org) holds the longest streak at 35 consecutive days of commits
-
 ![Longest Commit Streak Query](images/longest-commit-streak.png)
 
-### Commit Activity Heatmap
+### Query 3: Commit Activity Heatmap
+
+This query generates a heatmap showing the distribution of commits by day of the week and 3-hour time blocks:
 
 [View SQL Query](src/sql/query/3-generate-heat-map.sql)
 
-The heatmap analysis shows commit patterns across days of the week and time blocks (24-hour divided into 3-hour ranges):
-
-Key insights:
-- Highest activity: Tuesday-Thursday during 10-12 time block
-- Weekend activity is notably lower, especially on Sundays
-- Early morning hours (01-03) show consistent but lower activity
-- Peak hours vary by day but generally fall within working hours
-- Saturday shows interesting spikes in early morning (01-03) and late night (22-00)
+The visualization below shows the commit patterns across:
+- Days of the week (Monday through Sunday)
+- Time blocks (24-hour day divided into 3-hour ranges)
+- Color intensity indicates higher commit activity in those time periods
 
 ![Commit Activity Heatmap Query](images/commit-heatmap.png)
 
