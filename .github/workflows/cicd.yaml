@@ -8,8 +8,8 @@ on:
 
 jobs:
   test:
-    #runs-on: ubuntu-latest
-    runs-on: [self-hosted, linux, x64]
+    runs-on: ubuntu-latest
+    # runs-on: [self-hosted, linux, x64]
     container:
       image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
       credentials:
