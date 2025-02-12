@@ -329,3 +329,7 @@ The visualization below shows the commit patterns across:
 
 > **Note**: Local Airflow development environment setup is work in progress. Currently using Cloud Composer - if you're interested in accessing the environment, please contact me and provide your Gmail address for IAM grant in GCP.
 </details>
+
+## Improvements
+- [ ] Migrate Airflow deployment from Cloud Composer to GKE (for reduce costs as well as giving flexibility for multi-cloud deployment)
+- [ ] (Optional) Use GitHub events for real-time streaming ETL Pipeline (Note: GitHub events have 5-minute delay)
