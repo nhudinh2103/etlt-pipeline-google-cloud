@@ -64,12 +64,12 @@ jobs:
       - name: Deploy to GKE use runner
         run: |
           # Sync DAGs
-          rsync -a --no-group --no-user -d src/dags/ /var/airflow/dags
+          rsync -aog --chown=50000:50000 -d src/dags/ /var/airflow/dags
 
           # Sync SQL
-          rsync -a --no-group --no-user -d src/sql/ /var/airflow/sql
+          rsync -aog --chown=50000:50000 -d src/sql/ /var/airflow/sql
           
           # Sync plugins
-          rsync -a --no-group --no-user -d src/plugins/ /var/airflow/plugins
+          rsync -aog --chown=50000:50000 -d src/plugins/ /var/airflow/plugins
           
           echo "Deployment completed successfully"
