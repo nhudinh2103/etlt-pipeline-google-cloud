@@ -6,11 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
-jobs:
-  .runner: &runner
-    runs-on: ubuntu-latest
-    # runs-on: [self-hosted, linux, x64]
+# Define reusable runner configuration
+x-runner: &runner
+  runs-on: ubuntu-latest
+  # runs-on: [self-hosted, linux, x64]
 
+jobs:
   test:
     <<: *runner
     container:
