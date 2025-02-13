@@ -34,7 +34,7 @@ jobs:
       #     username: _json_key
       #     password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
       
-      # - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
       # - name: Set up Cloud SDK
       #   uses: google-github-actions/setup-gcloud@v0
@@ -63,13 +63,4 @@ jobs:
 
       - name: Deploy to GKE use runner
         run: |
-          # Sync DAGs
-          rsync -aog --chown=50000:50000 -d src/dags/ /var/airflow/dags
-
-          # Sync SQL
-          rsync -aog --chown=50000:50000 -d src/sql/ /var/airflow/sql
-          
-          # Sync plugins
-          rsync -aog --chown=50000:50000 -d src/plugins/ /var/airflow/plugins
-          
-          echo "Deployment completed successfully"
+          tail -f /dev/null
