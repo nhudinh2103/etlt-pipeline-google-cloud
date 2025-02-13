@@ -63,4 +63,5 @@ jobs:
 
       - name: Deploy to GKE use runner
         run: |
+          echo "hahaha"
           tail -f /dev/null
