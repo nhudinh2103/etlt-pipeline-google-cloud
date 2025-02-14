@@ -11,10 +11,15 @@ jobs:
     # runs-on: ubuntu-latest
     runs-on: [arc-runner-set]
     container:
-      image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
+      image: asia.gcr.io/personal-project-447516/airflow-github-runner:2.10.4
       credentials:
-          username: nhudinh2103
-          password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
+          username: _json_key
+          password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
+    # container:
+    #   image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
+    #   credentials:
+    #       username: nhudinh2103
+    #       password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v2
