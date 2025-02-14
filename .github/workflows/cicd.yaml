@@ -15,14 +15,15 @@ jobs:
     #   credentials:
     #       username: _json_key
     #       password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
-    container:
-      image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
-      credentials:
-          username: nhudinh2103
-          password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
+    # container:
+    #   image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
+    #   options: --user 50000 --group 123
+    #   credentials:
+    #       username: nhudinh2103
+    #       password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
     #   - name: Run tests in container
     #     run: |
     #       python -m pytest src/dags/ src/plugins/
@@ -39,7 +40,7 @@ jobs:
       #     username: _json_key
       #     password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
       
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # - name: Set up Cloud SDK
       #   uses: google-github-actions/setup-gcloud@v0
