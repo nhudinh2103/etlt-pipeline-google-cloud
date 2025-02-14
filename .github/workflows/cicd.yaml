@@ -49,7 +49,7 @@ jobs:
       #     service_account_key: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
       #     export_default_credentials: true
 
-      # - name: Deploy to Cloud Composer
+      - name: Deploy to Cloud Composer
       #   run: |
       #     # Get Composer's GCS bucket
       #     COMPOSER_BUCKET=$(gcloud composer environments describe ${{ secrets.AIRR_LABS_COMPOSER_ENV_NAME }} \
@@ -57,7 +57,7 @@ jobs:
       #       --format="get(config.dagGcsPrefix)")
           
       #     # Sync DAGs
-      #     gsutil -m rsync -r -d src/dags/ $COMPOSER_BUCKET/dags
+          # gsutil -m rsync -r -d src/dags/ $COMPOSER_BUCKET/dags
 
       #     # Sync SQL
       #     gsutil -m rsync -r -d src/sql/ $COMPOSER_BUCKET/dags/sql
@@ -67,7 +67,15 @@ jobs:
           
       #     echo "Deployment completed successfully"
 
-      - name: Deploy to GKE use runner
+      - name: Deploy to GKE
         run: |
-          echo "hahaha"
-          tail -f /dev/null
+          # Sync DAGs
+          rsync -aogv --chown=50000:50000 -d src/dags /var/airflow/dags
+
+          # Sync SQL
+          rsync -aogv --chown=50000:50000 -d src/sql /var/airflow/dags
+          
+          # Sync plugins
+          rsync -aogv --chown=50000:50000 -d src/plugins /var/airflow/dags
+        
+          echo "Deployment completed successfully"
