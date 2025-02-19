@@ -43,7 +43,6 @@ An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Trans
 ```
 - Migrate Airflow deployment from Cloud Composer to GKE (reduce cost 7x times).
 - Add Terraform configurations for automated provisioning kubernetes resources in GCP.
-
 - Use sealed secret for store secret securely in git repo.
 ```
 </details>
