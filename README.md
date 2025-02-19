@@ -2,6 +2,7 @@
 
 ## Table of Contents
 - [Overview](#overview)
+- [Changelog](#changelog)
 - [Infrastructure](#infrastructure)
 - [Architecture](#architecture)
   - [Medallion Architecture](#medallion-architecture)
@@ -32,6 +33,15 @@
 <summary>Click to expand</summary>
 
 An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Transform), a variant of the traditional ETL pattern that adds a second transform phase after loading. This pipeline extracts commit data from the Apache Airflow GitHub repository and loads it into BigQuery using a medallion architecture.
+</details>
+
+## Changelog
+<details open>
+<summary>Click to expand</summary>
+
+### 19 February 2025
+- Migrate Airflow deployment from Cloud Composer to GKE (reduce cost 7x times).
+- Add Terraform configurations for automated provisioning kubernetes resources in GCP.
 </details>
 
 ## Infrastructure
@@ -352,6 +362,7 @@ The visualization below shows the commit patterns across:
 
 Future improvements planned for this project:
 
-- [ ] Migrate Airflow deployment from Cloud Composer to GKE (for reduce costs as well as giving flexibility for multi-cloud deployment)
+- [x] Migrate Airflow deployment from Cloud Composer to GKE (for reduce costs as well as giving flexibility for multi-cloud deployment)- [x] Add Terraform configurations for automated provisioning of Kubernetes resources in GCP
 - [ ] Replace SealedSecret with HashiCorp Vault for enhanced secret management capabilities
+- [ ] Implement VPN-based access control to enhance security by restricting Airflow access to VPN users only
 - [ ] (Optional) Use GitHub events for real-time streaming ETL Pipeline (Note: GitHub events have 5-minute delay)
