@@ -39,9 +39,13 @@ An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Trans
 <details open>
 <summary>Click to expand</summary>
 
-### 19 February 2025
+### February 2025
+```
 - Migrate Airflow deployment from Cloud Composer to GKE (reduce cost 7x times).
 - Add Terraform configurations for automated provisioning kubernetes resources in GCP.
+
+- Use sealed secret for store secret securely in git repo.
+```
 </details>
 
 ## Infrastructure
@@ -362,7 +366,8 @@ The visualization below shows the commit patterns across:
 
 Future improvements planned for this project:
 
-- [x] Migrate Airflow deployment from Cloud Composer to GKE (for reduce costs as well as giving flexibility for multi-cloud deployment)- [x] Add Terraform configurations for automated provisioning of Kubernetes resources in GCP
+- [x] Migrate Airflow deployment from Cloud Composer to GKE (for reduce costs as well as giving flexibility for multi-cloud deployment)-
+- [x] Add Terraform configurations for automated provisioning of Kubernetes resources in GCP
 - [ ] Replace SealedSecret with HashiCorp Vault for enhanced secret management capabilities
 - [ ] Implement VPN-based access control to enhance security by restricting Airflow access to VPN users only
 - [ ] (Optional) Use GitHub events for real-time streaming ETL Pipeline (Note: GitHub events have 5-minute delay)
