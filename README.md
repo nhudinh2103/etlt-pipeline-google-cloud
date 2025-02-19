@@ -38,13 +38,17 @@ An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Trans
 <details open>
 <summary>Click to expand</summary>
 
-The infrastructure code for this project can be found at: https://github.com/dinhnn/airflow-infrastructure
+The infrastructure code for this project can be found at: https://github.com/nhudinh2103/airflow-infrastructure
 
-This repository contains the infrastructure-as-code for various components running on Google Kubernetes Engine (GKE):
-- Apache Airflow deployment
+This repository contains Terraform configurations for automated provisioning of infrastructure in Google Cloud Platform (GCP), including:
+- Google Kubernetes Engine (GKE) cluster setup
+- Apache Airflow deployment on GKE
 - GitHub Actions self-hosted runners
 - SealedSecret for secure secret management
+- Network configurations and security settings
 - And more infrastructure components
+
+All infrastructure is managed as code using Terraform, enabling automated provisioning and consistent deployments across environments.
 </details>
 
 ## Architecture
