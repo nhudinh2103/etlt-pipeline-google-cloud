@@ -99,7 +99,7 @@ The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern with
 <details open>
 <summary>Click to expand</summary>
 
-![Deployment Architecture](https://github.com/USERNAME/REPOSITORY/blob/main/images/deployment-architecture.png?raw=true))
+![Deployment Architecture](https://github.com/nhudinh2103/airr-labs-interview/blob/main/images/deployment-architecture.png?raw=true)
 
 The deployment process follows a CI/CD approach:
 1. Data engineer commits code to GitHub repository
