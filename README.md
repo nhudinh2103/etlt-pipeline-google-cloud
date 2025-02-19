@@ -41,7 +41,7 @@ An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Trans
 
 ### February 2025
 ```
-- Migrate Airflow deployment from Cloud Composer to GKE (reduce cost 7x times).
+- Migrate Airflow deployment from Cloud Composer to GKE (reduce cost 8x times).
 - Add Terraform configurations for automated provisioning kubernetes resources in GCP.
 - Use sealed secret for store secret securely in git repo.
 ```
@@ -81,7 +81,7 @@ The project organizes data into different layers of refinement, with all layers 
 <details open>
 <summary>Click to expand</summary>
 
-![Pipeline Architecture](images/pipeline-architecture.png?)
+![Pipeline Architecture](images/pipeline-architecture.png)
 
 The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern within Google Cloud Platform (GCP):
 
@@ -99,7 +99,7 @@ The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern with
 <details open>
 <summary>Click to expand</summary>
 
-![Deployment Architecture](images/deployment-architecture.png?)
+![Deployment Architecture](images/deployment-architecture.png)
 
 The deployment process follows a CI/CD approach:
 1. Data engineer commits code to GitHub repository
@@ -112,10 +112,10 @@ The deployment process follows a CI/CD approach:
 <details open>
 <summary>Click to expand</summary>
 
-![ETLT Pipeline](images/etl-pipeline.png?)
+![ETLT Pipeline](images/etl-pipeline.png)
 
 #### Airflow DAG
-![Airflow DAG](images/airflow-dag.png?)
+![Airflow DAG](images/airflow-dag.png)
 
 Tasks are organized to process data daily, with each execution handling its specific partition (dt=YYYY-MM-DD).
 
@@ -179,7 +179,7 @@ The pipeline is designed with the following key principles:
 
 The project implements a star schema design optimized for analyzing GitHub commit patterns:
 
-![Data Model](images/data-model.png?)
+![Data Model](images/data-model.png)
 
 ### 🔄 Staging Layer
 `staging_commits`
@@ -327,9 +327,9 @@ This query determines the top 5 committers ranked by count of commits and their 
 4. torvalds@linux-foundation.org (1,444 commits)
 5. alexander.deucher@amd.com (1,318 commits)
 
-[View SQL Query](src/sql/query/1-top-5-committers.sql?)
+[View SQL Query](src/sql/query/1-top-5-committers.sql)
 
-![Top 5 Committers Query](images/top-5-committers.png?)
+![Top 5 Committers Query](images/top-5-committers.png)
 
 ### Query 2: Committer with Longest Commit Streak
 
@@ -337,9 +337,9 @@ This query identifies the committer with the longest consecutive days of commits
 
 Linus Torvalds (torvalds@linux-foundation.org) achieved the longest streak with 35 consecutive days of commits.
 
-[View SQL Query](src/sql/query/2-committer-longest-streak-by-day.sql?)
+[View SQL Query](src/sql/query/2-committer-longest-streak-by-day.sql)
 
-![Longest Commit Streak Query](images/longest-commit-streak.png?)
+![Longest Commit Streak Query](images/longest-commit-streak.png)
 
 ### Query 3: Commit Activity Heatmap
 
@@ -351,7 +351,7 @@ The visualization below shows the commit patterns across:
 - Days of the week (Monday through Sunday)
 - Time blocks (24-hour day divided into 3-hour ranges)
 
-![Commit Activity Heatmap Query](images/commit-heatmap.png?)
+![Commit Activity Heatmap Query](images/commit-heatmap.png)
 </details>
 
 ## Development
