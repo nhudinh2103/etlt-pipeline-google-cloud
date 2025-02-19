@@ -2,61 +2,80 @@ name: CICD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, airflow-gke ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, airflow-gke ]
 
 jobs:
   test:
-    runs-on: ubuntu-latest
-    # runs-on: [self-hosted, linux, x64]
-    container:
-      image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
-      credentials:
-          username: nhudinh2103
-          password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
+    # runs-on: ubuntu-latest
+    runs-on: [arc-runner-set]
+    # container:
+    #   image: asia.gcr.io/personal-project-447516/airflow-github-runner:2.10.4
+    #   credentials:
+    #       username: _json_key
+    #       password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
+    # container:
+    #   image: ghcr.io/nhudinh2103/github-etl-cicd:0.0.1 
+    #   options: --user 50000 --group 123
+    #   credentials:
+    #       username: nhudinh2103
+    #       password: ${{ secrets.AIRR_LABS_GIHUB_TOKEN }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
     #   - name: Run tests in container
     #     run: |
     #       python -m pytest src/dags/ src/plugins/
 
   deploy:
     needs: test
-    runs-on: ubuntu-latest
-    # runs-on: [self-hosted, linux, x64]
+    # runs-on: ubuntu-latest
+    runs-on: [arc-runner-set]
     steps:
-      - name: Login to GCR
-        uses: docker/login-action@v3
-        with:
-          registry: asia.gcr.io
-          username: _json_key
-          password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
+      # - name: Login to GCR
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: asia.gcr.io
+      #     username: _json_key
+      #     password: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
       
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v0
-        with:
-          project_id: ${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
-          export_default_credentials: true
+      # - name: Set up Cloud SDK
+      #   uses: google-github-actions/setup-gcloud@v0
+      #   with:
+      #     project_id: ${{ secrets.AIRR_LABS_GCP_PROJECT_ID }}
+      #     service_account_key: ${{ secrets.AIRR_LABS_GCP_SA_KEY }}
+      #     export_default_credentials: true
 
-      - name: Deploy to Cloud Composer
-        run: |
-          # Get Composer's GCS bucket
-          COMPOSER_BUCKET=$(gcloud composer environments describe ${{ secrets.AIRR_LABS_COMPOSER_ENV_NAME }} \
-            --location=${{ secrets.AIRR_LABS_COMPOSER_LOCATION }} \
-            --format="get(config.dagGcsPrefix)")
+      # - name: Deploy to Cloud Composer
+      #   run: |
+      #     # Get Composer's GCS bucket
+      #     COMPOSER_BUCKET=$(gcloud composer environments describe ${{ secrets.AIRR_LABS_COMPOSER_ENV_NAME }} \
+      #       --location=${{ secrets.AIRR_LABS_COMPOSER_LOCATION }} \
+      #       --format="get(config.dagGcsPrefix)")
           
+      #     # Sync DAGs
+          # gsutil -m rsync -r -d src/dags/ $COMPOSER_BUCKET/dags
+
+      #     # Sync SQL
+      #     gsutil -m rsync -r -d src/sql/ $COMPOSER_BUCKET/dags/sql
+          
+      #     # Sync plugins
+      #     gsutil -m rsync -r -d src/plugins/ $COMPOSER_BUCKET/plugins
+          
+      #     echo "Deployment completed successfully"
+
+      - name: Deploy to GKE
+        run: |
           # Sync DAGs
-          gsutil -m rsync -r -d src/dags/ $COMPOSER_BUCKET/dags
+          rsync -aogv --chown=50000:50000 -d src/dags /var/airflow/dags
 
           # Sync SQL
-          gsutil -m rsync -r -d src/sql/ $COMPOSER_BUCKET/dags/sql
+          rsync -aogv --chown=50000:50000 -d src/sql /var/airflow/dags
           
           # Sync plugins
-          gsutil -m rsync -r -d src/plugins/ $COMPOSER_BUCKET/plugins
-          
+          rsync -aogv --chown=50000:50000 -d src/plugins /var/airflow/dags
+        
           echo "Deployment completed successfully"
