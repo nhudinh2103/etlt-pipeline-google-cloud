@@ -104,8 +104,8 @@ The pipeline follows the ETLT (Extract, Transform, Load, Transform) pattern with
 The deployment process follows a CI/CD approach:
 1. Data engineer commits code to GitHub repository
 2. GitHub Actions triggers CI/CD job on new commits
-3. On successful tests, code is deployed to GCS bucket
-4. Cloud Composer (Airflow) automatically syncs code from GCS bucket
+3. On successful tests, code is deployed using Github Runners copy source to PVC (mounted from NFS VM) self hosted in GKE
+4. Airflow scheduler pod automatically syncs code from GCS bucket
 </details>
 
 ### Pipeline Components
@@ -240,13 +240,13 @@ The project implements a star schema design optimized for analyzing GitHub commi
 <details open>
 <summary>Click to expand</summary>
 
-1. Set up Cloud Composer environment
-2. Configure Airflow variables:
+1. Set up GKE cluster using the infrastructure code from the infrastructure repository
+2. Deploy Airflow on GKE using Helm chart
+3. Configure Airflow variables using SealedSecret:
    ```
    github_token: Your GitHub API token
    ```
-
-3. Update `config.py` with your:
+4. Update `config.py` with your:
    - GCS bucket
    - BigQuery project and dataset
    - Other configurations
@@ -263,15 +263,13 @@ The pipeline uses GitHub Actions for continuous integration and deployment:
    AIRR_LABS_GIHUB_TOKEN: GitHub token for container registry access
    AIRR_LABS_GCP_SA_KEY: GCP service account key
    AIRR_LABS_GCP_PROJECT_ID: GCP project ID
-   AIRR_LABS_COMPOSER_ENV_NAME: Cloud Composer environment name
-   AIRR_LABS_COMPOSER_LOCATION: Cloud Composer environment location
    ```
 
 2. Workflow Steps:
    - On push/PR to main branch:
      - Runs tests in custom Docker container
      - If tests pass, authenticates with GCP
-     - Syncs DAGs, SQL, and plugins to Cloud Composer's GCS bucket
+     - Syncs DAGs, SQL, and plugins to Airflow's PVC mounted from NFS VM
 </details>
 
 ## Project Structure
@@ -358,7 +356,7 @@ The visualization below shows the commit patterns across:
 <details open>
 <summary>Click to expand</summary>
 
-> **Note**: Local Airflow development environment setup is work in progress. Currently using Cloud Composer - if you're interested in accessing the environment, please contact me and provide your Gmail address for IAM grant in GCP.
+> **Note**: Local Airflow development environment setup is work in progress. Currently using GKE - if you're interested in accessing the environment, please contact me and provide your details for VPN access setup.
 </details>
 
 ## Improvements
