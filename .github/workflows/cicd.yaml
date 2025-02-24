@@ -72,7 +72,7 @@ jobs:
       - name: Deploy to GKE
         run: |
           # Sync DAGs
-          rsync -aogv --chown=50000:50000 -d src/dags /var/airflow/dags
+          rsync -aogv --chown=50000:50000 -d src/dags/ /var/airflow/dags
 
           # Sync SQL
           rsync -aogv --chown=50000:50000 -d src/sql /var/airflow/dags
