@@ -78,6 +78,6 @@ jobs:
           rsync -aogv --chown=50000:50000 -d src/sql /var/airflow/dags/dags
           
           # Sync plugins
-          rsync -aogv --chown=50000:50000 -d src/plugins /var/airflow/dags/dags
+          rsync -aogv --chown=50000:50000 -d src/plugins /var/airflow/dags
         
           echo "Deployment completed successfully"
