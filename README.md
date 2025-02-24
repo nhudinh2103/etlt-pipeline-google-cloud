@@ -44,6 +44,7 @@ An Apache Airflow pipeline that implements ETLT (Extract, Transform, Load, Trans
 - Migrate Airflow deployment from Cloud Composer to GKE (reduce cost 8x times).
 - Add Terraform configurations for automated provisioning kubernetes resources in GCP.
 - Use sealed secret for store secret securely in git repo.
+- Expose Airflow UI at https://airflow.dinhnn-poc.click/ with view-only access credentials.
 ```
 </details>
 
@@ -62,6 +63,17 @@ This repository contains Terraform configurations for automated provisioning of 
 - And more infrastructure components
 
 All infrastructure is managed as code using Terraform, enabling automated provisioning and consistent deployments across environments.
+</details>
+
+## Access Information
+<details open>
+<summary>Click to expand</summary>
+
+- **Airflow URL**: https://airflow.dinhnn-poc.click/
+- **Credentials**:
+  - Username: airrlab_user
+  - Password: airrlab_user
+  - Note: This user has view-only access with limited permissions.
 </details>
 
 ## Architecture
