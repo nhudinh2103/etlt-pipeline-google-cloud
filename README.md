@@ -117,7 +117,7 @@ The deployment process follows a CI/CD approach:
 1. Data engineer commits code to GitHub repository
 2. GitHub Actions triggers CI/CD job on new commits
 3. On successful tests, code is deployed using Github Runners copy source to PVC (mounted from NFS VM) self hosted in GKE
-4. Airflow scheduler pod automatically syncs code from GCS bucket
+4. Airflow scheduler pod automatically syncs code from PVC (which was mounted from VM NFS) in GKE.
 </details>
 
 ### Pipeline Components
