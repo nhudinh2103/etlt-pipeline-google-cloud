@@ -71,8 +71,8 @@ All infrastructure is managed as code using Terraform, enabling automated provis
 
 - **Airflow URL**: https://airflow.dinhnn-poc.click/
 - **Credentials**:
-  - Username: airrlab_user
-  - Password: airrlab_user
+  - Username: test
+  - Password: test
   - Note: This user has view-only access with limited permissions.
 </details>
 
